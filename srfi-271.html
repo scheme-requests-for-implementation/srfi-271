@@ -24,8 +24,7 @@ SPDX-License-Identifier: MIT
     The editor will add this section.</p>
 
 
-    <div id="abstract">
-      <h2>Abstract</h2>
+      <h2 id="abstract">Abstract</h2>
 
       <p>This SRFI proposes a pattern of libraries for binary input ports
       that produce random bytes. Libraries are divided into
@@ -35,10 +34,8 @@ SPDX-License-Identifier: MIT
       bytes to other types (floats, etc.) to higher-level libraries.
       A mechanism for saving random-port states as bytevectors and for
       propagating those states to new ports is also provided.</p>
-    </div>
 
-    <div id="toc">
-      <h2>Contents</h2>
+      <h2 id="toc">Contents</h2>
 
       <ol>
         <li><a href="#issues">Issues</a></li>
@@ -81,17 +78,14 @@ SPDX-License-Identifier: MIT
         <li><a href="#references">References</a></li>
         <li><a href="#copyright">Copyright</a></li>
       </ol>
-    </div>
 
 
-    <div id="issues">
-      <h2>Issues</h2>
+
+      <h2 id="issues">Issues</h2>
 
       <p>None at present.</p>
-    </div>
 
-    <div id="rationale">
-      <h2>Rationale</h2>
+      <h2 id="rationale">Rationale</h2>
 
       <p>As a foundation for random-number generation, the well-known
       (and excellent)
@@ -197,11 +191,9 @@ SPDX-License-Identifier: MIT
       source to block, e.g. until sufficient entropy is available. With
       random ports, applying <code>u8-ready?</code> should be enough to
       alert you of this situation.</p>
-    </div>
 
 
-    <div id="specification">
-      <h2>Specification</h2>
+      <h2 id="specification">Specification</h2>
 
       <div id="terminology">
         <h3>Terminology</h3>
@@ -422,10 +414,8 @@ SPDX-License-Identifier: MIT
           </dd>
         </dl>
       </div>
-    </div>
 
-    <div id="compatibility">
-      <h2>Compatibility</h2>
+      <h2 id="compatibility">Compatibility</h2>
 
       <h3>SRFI 27</h3>
 
@@ -468,20 +458,16 @@ SPDX-License-Identifier: MIT
       in any case, for all users of SRFI 271. (In view of this,
       a revision of SRFI 194 based on random-byte sources might be
       a Good Thing.)</p>
-    </div>
 
-    <div id="implementation">
-      <h2>Implementation</h2>
+      <h2 id="implementation">Implementation</h2>
 
       <p>A portable implementation of random ports is currently
       impossible. A sample implementation of SRFI 271 developed for
       Gauche (running on POSIX systems) is available in the SRFI
       repository.</p>
-    </div>
 
 
-    <div id="acknowledgements">
-      <h2>Acknowledgements</h2>
+      <h2 id="acknowledgements">Acknowledgements</h2>
 
       <p>Thanks to John W. Cowan for helping to chip away
       everything in this SRFI that did not look like an elephant.</p>
@@ -501,11 +487,9 @@ SPDX-License-Identifier: MIT
 
       <p>Of course, none of this should be taken to suggest that any
       of the people mentioned above endorse this SRFI.</p>
-    </div>
 
 
-    <div id="references">
-      <h2>References</h2>
+      <h2 id="references">References</h2>
 
       <p id="rfc2119">S. Bradner, <cite>Key words for use in RFCs to
       Indicate Requirement Levels</cite> (RFC 2119), 1997.
@@ -551,11 +535,9 @@ SPDX-License-Identifier: MIT
       <p id="riastradh-comments">Taylor Campbell. Personal
       communication, 2025.
       <a href="https://codeberg.org/scheme/r7rs/issues/71#issuecomment-11352490">     Available on the R7RS issue tracker.</a></p>
-    </div>
 
 
-    <div id="copyright">
-      <h2>Copyright</h2>
+      <h2 id="copyright">Copyright</h2>
 
       <p>&copy; 2026 Wolfgang Corcoran-Mathe.</p>
 
@@ -582,7 +564,6 @@ SPDX-License-Identifier: MIT
         ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
         CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
         SOFTWARE.</p>
-    </div>
 
     <hr>
     <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
