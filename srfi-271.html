@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-<!--
-SPDX-FileCopyrightText: [year] [copyright holder]
-SPDX-License-Identifier: MIT
--->
+  <!--
+  SPDX-FileCopyrightText: [year] [copyright holder]
+  SPDX-License-Identifier: MIT
+  -->
   <head>
     <meta charset="utf-8">
     <title>SRFI 271: Random port libraries</title>
@@ -24,9 +24,9 @@ SPDX-License-Identifier: MIT
     The editor will add this section.</p>
 
 
-      <h2 id="abstract">Abstract</h2>
+    <h2 id="abstract">Abstract</h2>
 
-      <p>This SRFI proposes a pattern of libraries for binary input ports
+    <p>This SRFI proposes a pattern of libraries for binary input ports
       that produce random bytes. Libraries are divided into
       “cryptographic” and “repeatable” categories to address different
       uses of random data. The design leaves the details of random
@@ -35,59 +35,59 @@ SPDX-License-Identifier: MIT
       A mechanism for saving random-port states as bytevectors and for
       propagating those states to new ports is also provided.</p>
 
-      <h2 id="toc">Contents</h2>
+    <h2 id="toc">Contents</h2>
 
-      <ol>
-        <li><a href="#issues">Issues</a></li>
-        <li><a href="#rationale">Rationale</a></li>
-        <li>
-          <a href="#specification">Specification</a>
-          <ol type="a">
-            <li><a href="#terminology">Terminology</a></li>
-            <li>
-              <a href="#libraries">Libraries</a>
-              <ol type="i">
-                <li>
-                  <a href="#library-protocol">Library protocol</a>
-                </li>
-                <li>
-                  <a href="#additional-libraries">Additional
+    <ol>
+      <li><a href="#issues">Issues</a></li>
+      <li><a href="#rationale">Rationale</a></li>
+      <li>
+        <a href="#specification">Specification</a>
+        <ol type="a">
+          <li><a href="#terminology">Terminology</a></li>
+          <li>
+            <a href="#libraries">Libraries</a>
+            <ol type="i">
+              <li>
+                <a href="#library-protocol">Library protocol</a>
+              </li>
+              <li>
+                <a href="#additional-libraries">Additional
                   libraries</a>
-                </li>
-                <li><a href="#discussion">Discussion</a></li>
-              </ol>
-            </li>
-            <li>
-              <a href="#interface">Interface</a>
-              <ol type="i">
-                <li><a href="#all-libraries">All libraries</a></li>
-                <li>
-                  <a href="#repeatable-interface"><code>repeatable</code>
+              </li>
+              <li><a href="#discussion">Discussion</a></li>
+            </ol>
+          </li>
+          <li>
+            <a href="#interface">Interface</a>
+            <ol type="i">
+              <li><a href="#all-libraries">All libraries</a></li>
+              <li>
+                <a href="#repeatable-interface"><code>repeatable</code>
                   libraries</a>
-                </li>
-              </ol>
-            <li>
-              <a href="#example-repeatable-library-names">Example
+              </li>
+            </ol>
+          <li>
+            <a href="#example-repeatable-library-names">Example
               <code>repeatable</code> library names</a>
-            </li>
-          </ol>
-        </li>
-        <li><a href="#implementation">Implementation</a></li>
-        <li><a href="#compatibility">Compatibility</a></li>
-        <li><a href="#acknowledgements">Acknowledgements</a></li>
-        <li><a href="#references">References</a></li>
-        <li><a href="#copyright">Copyright</a></li>
-      </ol>
+          </li>
+        </ol>
+      </li>
+      <li><a href="#implementation">Implementation</a></li>
+      <li><a href="#compatibility">Compatibility</a></li>
+      <li><a href="#acknowledgements">Acknowledgements</a></li>
+      <li><a href="#references">References</a></li>
+      <li><a href="#copyright">Copyright</a></li>
+    </ol>
 
 
 
-      <h2 id="issues">Issues</h2>
+    <h2 id="issues">Issues</h2>
 
-      <p>None at present.</p>
+    <p>None at present.</p>
 
-      <h2 id="rationale">Rationale</h2>
+    <h2 id="rationale">Rationale</h2>
 
-      <p>As a foundation for random-number generation, the well-known
+    <p>As a foundation for random-number generation, the well-known
       (and excellent)
       <a href="https://srfi.schemers.org/srfi-27">SRFI 27</a>
       includes both too little and too much.  On
@@ -99,23 +99,23 @@ SPDX-License-Identifier: MIT
       over them, thus adding avoidable complexity to the
       specification.</p>
 
-      <p>In this SRFI I take a different tack and try to describe a
+    <p>In this SRFI I take a different tack and try to describe a
       framework for random-byte generation that adds as little as
       necessary to the language. This SRFI:</p>
 
-      <ul>
-        <li>
-          <p>Uses binary input ports, rather than a novel type, for random
+    <ul>
+      <li>
+        <p>Uses binary input ports, rather than a novel type, for random
           sources.</p>
-        </li>
-        <li>
-          <p>Uses the Scheme library system--and only the Scheme library
+      </li>
+      <li>
+        <p>Uses the Scheme library system--and only the Scheme library
           system--to distinguish between cryptographic-quality
           sources and repeatable sources, as well as between different
           kinds of cryptographic and repeatable sources.</p>
-        </li>
-        <li>
-          <p>Specifies no procedures for drawing random data.  The
+      </li>
+      <li>
+        <p>Specifies no procedures for drawing random data.  The
           random-byte-seeking user is pointed in the direction of
           <code>read-u8</code> and <code>read-bytevector</code>; those
           in search of other kinds of random data will find a profusion
@@ -123,12 +123,12 @@ SPDX-License-Identifier: MIT
           <a href="https://srfi.schemers.org/srfi-194">SRFI 194</a>.
           (But see the <a href="#srfi-194-compatibility">compatibility
           notes</a>.)</p>
-        </li>
-      </ul>
+      </li>
+    </ul>
 
-      <h3>Random port states</h3>
+    <h3>Random port states</h3>
 
-      <p>Everyone agrees that it is sometimes useful to generate
+    <p>Everyone agrees that it is sometimes useful to generate
       the same random sequence several times, e.g. on each run of
       a test suite.  Whether to allow random number generators to
       be “seeded”, and what forms those seeds should take, is
@@ -138,7 +138,7 @@ SPDX-License-Identifier: MIT
       <code>srand(3)</code> (<a href="#c23"><cite>C23</cite></a>
       section 7.24.3.2) and other obsolete systems.</p>
 
-      <p>SRFI 27 allows random-source states to be manipulated as
+    <p>SRFI 27 allows random-source states to be manipulated as
       opaque objects, which does most of the job--you can save the
       sate of a SRFI 27 source and restore it later, although the
       SRFI doesn’t guarantee that states support an equivalence
@@ -146,7 +146,7 @@ SPDX-License-Identifier: MIT
       are essential for allowing random states to be written to
       disk and read back in during a later session.</p>
 
-      <p>In this SRFI I go a step further and propose
+    <p>In this SRFI I go a step further and propose
       bytevectors as a common representation of random-port states.
       While this may pose a challenge to adoption (current random
       source implementations use a wide range of state representations),
@@ -159,9 +159,9 @@ SPDX-License-Identifier: MIT
       with a hard-to-predict initial state, simply seed it with a
       cryptographic-quality port.)</p>
 
-      <h3>Why ports?</h3>
+    <h3>Why ports?</h3>
 
-      <p>Input ports have been in the Scheme Reports since the early
+    <p>Input ports have been in the Scheme Reports since the early
       days (the <a href="#r2rs">R2RS</a>); thus they fit easily into existing programs,
       and they come with a wealth of standard inspection
       procedures (<code>u8-ready?</code>, etc.).  In contrast, an
@@ -169,7 +169,7 @@ SPDX-License-Identifier: MIT
       wheel-reinvention--procedures like the utterly elementary
       <code>read-u8</code> have to be specified anew.</p>
 
-      <p>SRFI 194's generator-based
+    <p>SRFI 194's generator-based
       interface is another option.
       <a href="https://srfi.schemers.org/srfi-158">SRFI 158</a>
       generators, however, are ill-defined,
@@ -185,7 +185,7 @@ SPDX-License-Identifier: MIT
       ports and generators have all of the same features and compete,
       pointlessly, for control of every I/O domain.</p>
 
-      <p>Back to the point. Some of the standard port operations that
+    <p>Back to the point. Some of the standard port operations that
       are not available for SRFI 158 generators are useful for random
       ports. For example, in some cases it may be necessary for a random
       source to block, e.g. until sufficient entropy is available. With
@@ -193,17 +193,17 @@ SPDX-License-Identifier: MIT
       alert you of this situation.</p>
 
 
-      <h2 id="specification">Specification</h2>
+    <h2 id="specification">Specification</h2>
 
-      <div id="terminology">
-        <h3>Terminology</h3>
+    <div id="terminology">
+      <h3>Terminology</h3>
 
-        <p>The words “must”, “may”, etc., though not upper-cased in this
+      <p>The words “must”, “may”, etc., though not upper-cased in this
         SRFI, should be interpreted according to <a href="#rfc2119">RFC
         2119</a>.
-        </p>
+      </p>
 
-        <p>A <dfn>cryptographic-quality</dfn> random-number source
+      <p>A <dfn>cryptographic-quality</dfn> random-number source
         produces data from either a hopefully-secure external source
         (e.g. the operating system’s entropy pool or a hardware
         random-number generator) or from a
@@ -213,240 +213,240 @@ SPDX-License-Identifier: MIT
         by an adversary who can read past outputs and simulate
         generation of outputs on demand.</p>
 
-        <p><em>The above definition is an attempt; the details are many
+      <p><em>The above definition is an attempt; the details are many
         and complicated.</em> Exactly what counts as “cryptographic
         quality” depends on your intentions and adversaries. When in
         doubt, consult your friendly neighborhood cryptologist.</p>
 
-        <p>A <dfn>repeatable</dfn> random-number source uses a fully
+      <p>A <dfn>repeatable</dfn> random-number source uses a fully
         deterministic generation algorithm and can be made to produce
         a known sequence of pseudorandom numbers by being seeded with
         an appropriate state value.</p>
-      </div>
+    </div>
 
-      <div id="libraries">
-        <h3>Libraries</h3>
+    <div id="libraries">
+      <h3>Libraries</h3>
 
-        <p>A Scheme implementation conforming to this specification
+      <p>A Scheme implementation conforming to this specification
         provides at least the following R7RS libraries
         (<a href="#r7rs"><cite>R7RS</cite></a> section 5.6):</p>
 
-        <ul>
-          <li><code>(srfi 271 random)</code></li>
-          <li><code>(srfi 271 random crypto)</code></li>
-          <li><code>(srfi 271 random repeatable)</code></li>
-        </ul>
+      <ul>
+        <li><code>(srfi 271 random)</code></li>
+        <li><code>(srfi 271 random crypto)</code></li>
+        <li><code>(srfi 271 random repeatable)</code></li>
+      </ul>
 
-        <p>The usual library-name-format variants for these libraries
+      <p>The usual library-name-format variants for these libraries
         may also be provided:</p>
 
-        <ul>
-          <li><code>(srfi :271 random crypto)</code>, etc.</li>
-          <li><code>(srfi srfi-271 random crypto)</code>, etc.</li>
-        </ul>
+      <ul>
+        <li><code>(srfi :271 random crypto)</code>, etc.</li>
+        <li><code>(srfi srfi-271 random crypto)</code>, etc.</li>
+      </ul>
 
-        <p><code>(srfi 271 random)</code> is simply an alias for
+      <p><code>(srfi 271 random)</code> is simply an alias for
         <code>(srfi 271 random crypto)</code>. (Rationale:
         Rushed or incautious programmers who just want random numbers
         <a href="#riastradh-comments">get the best available.</a>)</p>
 
-        <h4 id="library-protocol">Library protocol</h4>
+      <h4 id="library-protocol">Library protocol</h4>
 
-        <p>The <code>(srfi 271 random crypto)</code> library and any
+      <p>The <code>(srfi 271 random crypto)</code> library and any
         libraries with the <code>(srfi 271 random crypto)</code>
         prefix should provide ports that produce cryptographic-quality
         random data.</p>
 
-        <p>Both the <code>crypto</code> and <code>repeatable</code>
+      <p>Both the <code>crypto</code> and <code>repeatable</code>
         libraries must export the <code>make-random-port</code> constructor.
         <code>repeatable</code> libraries must provide an
         <a href="#repeatable-interface">additional interface</a> for
         creating random ports with predetermined initial
         states.</p>
 
-        <h4 id="additional-libraries">Additional libraries</h4>
+      <h4 id="additional-libraries">Additional libraries</h4>
 
-        <p>Implementations are encouraged to provide additional libraries
+      <p>Implementations are encouraged to provide additional libraries
         (e.g. for different pseudorandom generation algorithms) under the
         <code>(srfi 271 random repeatable)</code> “namespace”.  If they do, they must ensure
         that each library follows the protocol detailed above.
         <a href="#example-repeatable-library-names">A list of example
         library names is provided below.</a></p>
 
-        <h4 id="discussion">Discussion</h4>
+      <h4 id="discussion">Discussion</h4>
 
-        <p><em>This section is informational.</em></p>
+      <p><em>This section is informational.</em></p>
 
-        <p>Each library is tied to a specific generation mechanism;
+      <p>Each library is tied to a specific generation mechanism;
         import the library that provides the one you want. There is no
         other mechanism in this specification for choosing between
         random-number generation algorithms.</p>
 
-        <p>No means is provided here for getting floats, arbitrary integers,
+      <p>No means is provided here for getting floats, arbitrary integers,
         or other data out of random ports.  This is left to
         a higher-level library, similar to SRFI 194, which can transform
         the binary output of a random port into values of other types.</p>
 
-        <p>If this proposal is incorporated into the R7RS, I suggest
+      <p>If this proposal is incorporated into the R7RS, I suggest
         that aliases under the library prefix <code>(scheme random)</code>
         (e.g. <code>(scheme random crypto)</code>,
         <code>(scheme random repeatable)</code>, etc.) be provided.</p>
-      </div>
+    </div>
 
 
-      <div id="interface">
-        <h3>Interface</h3>
+    <div id="interface">
+      <h3>Interface</h3>
 
-        <h4 id="all-libraries">All libraries</h4>
+      <h4 id="all-libraries">All libraries</h4>
 
-        <p>A <code>make-random-port</code> procedure is exported by each
+      <p>A <code>make-random-port</code> procedure is exported by each
         library with the <code>(srfi 271 random)</code> prefix.</p>
 
-        <p><code>(make-random-port [initializer])</code> →
+      <p><code>(make-random-port [initializer])</code> →
         binary-input-port</p>
 
-        <p>Returns a <dfn>random port</dfn>, a binary input port which
+      <p>Returns a <dfn>random port</dfn>, a binary input port which
         produces random data. Reading
         from a random port should not produce an end-of-file object.
         If the source represented by a random port would
         block (e.g. due to low system entropy), <code>u8-ready?</code>
         must return <code>#f</code> when invoked on the port.</p>
 
-        <p>The optional <var>initializer</var> argument is used only
+      <p>The optional <var>initializer</var> argument is used only
         by <code>repeatable</code> libraries (see below).</p>
 
 
-        <div id="repeatable-interface">
-          <h4><code>repeatable</code> libraries</h4>
+      <div id="repeatable-interface">
+        <h4><code>repeatable</code> libraries</h4>
 
-          <p>The following procedures are exported by all libraries with
+        <p>The following procedures are exported by all libraries with
           the <code>(srfi 271 random repeatable)</code> prefix.</p>
 
-          <p><code>(make-random-port [initializer])</code> →
+        <p><code>(make-random-port [initializer])</code> →
           binary-input-port</p>
 
-          <p>As above, but the optional <var>initializer</var> argument
+        <p>As above, but the optional <var>initializer</var> argument
           is used as follows:</p>
 
-          <ul>
-            <li>
-              <p>If <var>initializer</var> is a bytevector
+        <ul>
+          <li>
+            <p>If <var>initializer</var> is a bytevector
               then the initial state of the random port returned by
               <code>make-random-port</code> is derived from this value.
               An error is
               signaled if <var>initializer</var> does not contain enough
               data to initialize the port.</p>
 
-              <p>Rationale: In tandem with <code>random-port-state</code>,
+            <p>Rationale: In tandem with <code>random-port-state</code>,
               this provides a way to put a random port into a known state.
-              </p>
-            </li>
-            <li>
-              <p>If <var>initializer</var> is a binary input port, then
+            </p>
+          </li>
+          <li>
+            <p>If <var>initializer</var> is a binary input port, then
               <code>make-random-port</code> reads data from this port
               until it has enough to initialize a new port.  An error is
               signaled if enough data cannot be obtained.</p>
-            </li>
-          </ul>
+          </li>
+        </ul>
 
-          <p>Calling <code>make-random-port</code> without an
+        <p>Calling <code>make-random-port</code> without an
           <var>initializer</var> is equivalent to</p>
 
-          <pre><code>(call-with-port (crypto:make-random-port)
+        <pre><code>(call-with-port (crypto:make-random-port)
                 make-random-port)</code></pre>
 
-          <p>where <code>crypto:make-random-port</code> denotes the
+        <p>where <code>crypto:make-random-port</code> denotes the
           <code>make-random-port</code> procedure exported by
           <code>(srfi 271 random crypto)</code>.</p>
 
-          <p><code>(random-port-state <var>random-port</var>)</code> →
+        <p><code>(random-port-state <var>random-port</var>)</code> →
           bytevector</p>
 
-          <p>Returns a bytevector representing the current state
+        <p>Returns a bytevector representing the current state
           of <var>random-port</var>. If a new port is created with
           <code>(make-random-port <var>state</var>)</code>, where
           <var>state</var> is the value of <code>(random-port-state
-          <var>old-port</var>)</code> (or is equal to that value
+            <var>old-port</var>)</code> (or is equal to that value
           in the sense of <code>equal?</code>), then the new port
           must produce the same random sequence as <var>old-port</var>.
-          </p>
-        </div>
+        </p>
       </div>
+    </div>
 
-      <div id="example-repeatable-library-names">
-        <h3>Example <code>repeatable</code> library names</h3>
+    <div id="example-repeatable-library-names">
+      <h3>Example <code>repeatable</code> library names</h3>
 
-        <p><em>This section is informational.</em></p>
+      <p><em>This section is informational.</em></p>
 
-        <p>Names are based on
+      <p>Names are based on
         <a href="https://prng.di.unimi.it">Sebastiano Vigna’s PRNG
         page</a> and Wikipedia.</p>
 
-        <dl>
-          <dt>
-            <code>(srfi 271 random repeatable xorshift)</code>
-          </dt>
-          <dd>
-            <p>Library using some kind of
+      <dl>
+        <dt>
+          <code>(srfi 271 random repeatable xorshift)</code>
+        </dt>
+        <dd>
+          <p>Library using some kind of
             <a href="https://en.wikipedia.org/wiki/Xorshift">xorshift</a>
             generator.</p>
-          </dd>
+        </dd>
 
-          <dt>
-            <code>(srfi 271 random repeatable xoshiro256++)</code>
-          </dt>
-          <dt>
-            <code>(srfi 271 random repeatable xoshiro256**)</code>
-          </dt>
-          <dd>
-            <p>
-              <a href="https://en.wikipedia.org/wiki/Xorshift#xoshiro">
+        <dt>
+          <code>(srfi 271 random repeatable xoshiro256++)</code>
+        </dt>
+        <dt>
+          <code>(srfi 271 random repeatable xoshiro256**)</code>
+        </dt>
+        <dd>
+          <p>
+            <a href="https://en.wikipedia.org/wiki/Xorshift#xoshiro">
               xoshiro</a> libraries.
-            </p>
-          </dd>
+          </p>
+        </dd>
 
-          <dt><code>(srfi 271 random repeatable mwc256)</code></dt>
-          <dd>
-            <p>Library for a 256-bit
+        <dt><code>(srfi 271 random repeatable mwc256)</code></dt>
+        <dd>
+          <p>Library for a 256-bit
             <a href="https://en.wikipedia.org/wiki/Multiply-with-carry_pseudorandom_number_generator">
-            multiply-with-carry</a>
+              multiply-with-carry</a>
             source.</p>
-          </dd>
-        </dl>
-      </div>
+        </dd>
+      </dl>
+    </div>
 
-      <h2 id="compatibility">Compatibility</h2>
+    <h2 id="compatibility">Compatibility</h2>
 
-      <h3>SRFI 27</h3>
+    <h3>SRFI 27</h3>
 
-      <p>SRFI 27’s random sources are very much like random ports, but
+    <p>SRFI 27’s random sources are very much like random ports, but
       they support a few operations that cannot be directly implemented
       in terms of SRFI 271 forms:</p>
 
-      <dl>
-        <dt><code>random-source?</code></dt>
-        <dd>
-          <p>Why not: Random ports are input ports, but SRFI 27 requires
+    <dl>
+      <dt><code>random-source?</code></dt>
+      <dd>
+        <p>Why not: Random ports are input ports, but SRFI 27 requires
           that random sources be of a disjoint type.</p>
-        </dd>
+      </dd>
 
-        <dt><code>random-source-state-set!</code></dt>
-        <dt><code>random-source-randomize!</code></dt>
-        <dt><code>random-source-pseudo-randomize!</code></dt>
-        <dd>
-          <p>Why not: SRFI 271 does not provide operations for directly
+      <dt><code>random-source-state-set!</code></dt>
+      <dt><code>random-source-randomize!</code></dt>
+      <dt><code>random-source-pseudo-randomize!</code></dt>
+      <dd>
+        <p>Why not: SRFI 271 does not provide operations for directly
           changing the state of an existing random port.</p>
-        </dd>
-      </dl>
+      </dd>
+    </dl>
 
-      <p>The state-mutation procedures, while rather ugly, pose no real
+    <p>The state-mutation procedures, while rather ugly, pose no real
       difficulty and could be added as an extension of SRFI 271. There
       is, however, no way to satisfy SRFI 27’s type-disjointness
       requirement.</p>
 
-      <h3 id="srfi-194-compatibility">SRFI 194</h3>
+    <h3 id="srfi-194-compatibility">SRFI 194</h3>
 
-      <p>Since SRFI 194 is built on SRFI 27’s random sources, it is
+    <p>Since SRFI 194 is built on SRFI 27’s random sources, it is
       not directly compatible with SRFI 271, but could be adapted to
       random ports without substantial changes. The missing pieces are,
       as far as I can tell, the <code>default-random-source</code>
@@ -459,90 +459,90 @@ SPDX-License-Identifier: MIT
       a revision of SRFI 194 based on random-byte sources might be
       a Good Thing.)</p>
 
-      <h2 id="implementation">Implementation</h2>
+    <h2 id="implementation">Implementation</h2>
 
-      <p>A portable implementation of random ports is currently
+    <p>A portable implementation of random ports is currently
       impossible. A sample implementation of SRFI 271 developed for
       Gauche (running on POSIX systems) is available in the SRFI
       repository.</p>
 
 
-      <h2 id="acknowledgements">Acknowledgements</h2>
+    <h2 id="acknowledgements">Acknowledgements</h2>
 
-      <p>Thanks to John W. Cowan for helping to chip away
+    <p>Thanks to John W. Cowan for helping to chip away
       everything in this SRFI that did not look like an elephant.</p>
 
-      <p>Thanks to Taylor Campbell and Alaric Snell-Pym for suggestions
+    <p>Thanks to Taylor Campbell and Alaric Snell-Pym for suggestions
       and elucidations. In particular, the definition of a
       cryptographic-quality source was adapted from
       <a href="#asp-rng">Alaric’s description</a> of the desirable
       properties of such a source; any inaccuracies in the SRFI’s
       version are my own doing.</p>
 
-      <p>Thanks to Peter McGoron and the other members of the R7RS
+    <p>Thanks to Peter McGoron and the other members of the R7RS
       Second Working Group for advice and discussion.</p>
 
-      <p>Thanks to those who provided feedback via the SRFI mailing list
+    <p>Thanks to those who provided feedback via the SRFI mailing list
       or on the #scheme IRC channel.</p>
 
-      <p>Of course, none of this should be taken to suggest that any
+    <p>Of course, none of this should be taken to suggest that any
       of the people mentioned above endorse this SRFI.</p>
 
 
-      <h2 id="references">References</h2>
+    <h2 id="references">References</h2>
 
-      <p id="rfc2119">S. Bradner, <cite>Key words for use in RFCs to
+    <p id="rfc2119">S. Bradner, <cite>Key words for use in RFCs to
       Indicate Requirement Levels</cite> (RFC 2119), 1997.
       <a href="https://datatracker.ietf.org/doc/html/rfc2119">
-      https://datatracker.ietf.org/doc/html/rfc2119</a></p>
+        https://datatracker.ietf.org/doc/html/rfc2119</a></p>
 
-      <p id="r2rs">Hal Abelson et al,
+    <p id="r2rs">Hal Abelson et al,
       <cite>Revised Revised Report on Scheme</cite> (R2RS), August
       1985.</p>
 
-      <p id="r7rs">Alex Shinn, John Cowan, &amp; Arthur A. Gleckler,
+    <p id="r7rs">Alex Shinn, John Cowan, &amp; Arthur A. Gleckler,
       eds., <cite>Revised<sup>7</sup> Report on the Algorithmic Language
       Scheme</cite> (R7RS Small), 2013.
       <a href="https://small.r7rs.org/">https://small.r7rs.org</a></p>
 
-      <p>Sebastiano Vigna, <cite>A PRNG
+    <p>Sebastiano Vigna, <cite>A PRNG
       shootout</cite>, (no publication date given).
       <a href="https://prng.di.unimi.it">https://prng.di.unimi.it</a>
 
-      <p id="c23"><cite>ISO/IEC 9899:2024. Programming languages --
+    <p id="c23"><cite>ISO/IEC 9899:2024. Programming languages --
       C</cite> (C23). ISO/IEC, 2024.</p>
 
-      <p id="asp-rng">Alaric Snell-Pym. <cite>Some thoughts on random
+    <p id="asp-rng">Alaric Snell-Pym. <cite>Some thoughts on random
       number generation</cite>.
       <a href="https://groups.google.com/g/scheme-reports-wg2/c/nMdFKe_dBbE/m/Xddyok-uBAAJ">Communication
       to the R7RS WG2 mailing list</a>, March 2026.</p>
 
-      <p id="srfi-27">Sebastian Egner. <cite>SRFI 27: Sources of
+    <p id="srfi-27">Sebastian Egner. <cite>SRFI 27: Sources of
       random bits</cite>.
       <a href="https://srfi.schemers.org/srfi-27/">
-      https://srfi.schemers.org/srfi-27/</a>, 2002.</p>
+        https://srfi.schemers.org/srfi-27/</a>, 2002.</p>
 
-      <p id="srfi-158">Shiro Kawai, John Cowan, and Thomas Gilray.
+    <p id="srfi-158">Shiro Kawai, John Cowan, and Thomas Gilray.
       <cite>SRFI 158: Generators and Accumulators</cite>.
       <a href="https://srfi.schemers.org/srfi-158/">
-      https://srfi.schemers.org/srfi-158/</a>, 2017.</p>
+        https://srfi.schemers.org/srfi-158/</a>, 2017.</p>
 
-      <p id="srfi-194">Shiro Kawai, Arvydas Silanskas, Linas Vepštas,
+    <p id="srfi-194">Shiro Kawai, Arvydas Silanskas, Linas Vepštas,
       and John Cowan. <cite>SRFI 194: Random data generators</cite>.
       <a href="https://srfi.schemers.org/srfi-194/">
-      https://srfi.schemers.org/srfi-194/</a>, 2020.</p>
+        https://srfi.schemers.org/srfi-194/</a>, 2020.</p>
 
-      <p id="riastradh-comments">Taylor Campbell. Personal
+    <p id="riastradh-comments">Taylor Campbell. Personal
       communication, 2025.
       <a href="https://codeberg.org/scheme/r7rs/issues/71#issuecomment-11352490">     Available on the R7RS issue tracker.</a></p>
 
 
-      <h2 id="copyright">Copyright</h2>
+    <h2 id="copyright">Copyright</h2>
 
-      <p>&copy; 2026 Wolfgang Corcoran-Mathe.</p>
+    <p>&copy; 2026 Wolfgang Corcoran-Mathe.</p>
 
-      <p>
-        Permission is hereby granted, free of charge, to any person
+    <p>
+      Permission is hereby granted, free of charge, to any person
         obtaining a copy of this software and associated documentation files
         (the "Software"), to deal in the Software without restriction,
         including without limitation the rights to use, copy, modify, merge,
@@ -550,13 +550,13 @@ SPDX-License-Identifier: MIT
         and to permit persons to whom the Software is furnished to do so,
         subject to the following conditions:</p>
 
-      <p>
-        The above copyright notice and this permission notice (including the
+    <p>
+      The above copyright notice and this permission notice (including the
         next paragraph) shall be included in all copies or substantial
         portions of the Software.</p>
 
-      <p>
-        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    <p>
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
         EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
         MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
         NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
