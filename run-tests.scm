@@ -3,8 +3,8 @@
 (import (scheme base)
         (scheme write)
         (srfi 64)
-        (prefix (srfi NNN random crypto) crypto:)
-        (prefix (srfi NNN random repeatable) repeat:)
+        (prefix (srfi 271 random crypto) crypto:)
+        (prefix (srfi 271 random repeatable) repeat:)
         )
 
 ;;; Test runner

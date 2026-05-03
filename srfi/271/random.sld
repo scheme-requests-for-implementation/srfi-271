@@ -1,7 +1,7 @@
 ;;; SPDX-FileCopyrightText: 2026 Wolfgang Corcoran-Mathe
 ;;; SPDX-License-Identifier: MIT
-(define-library (srfi NNN random)
+(define-library (srfi 271 random)
   (export make-random-port)
   (import (scheme base)
           (scheme file)
-          (srfi NNN random crypto)))
+          (srfi 271 random crypto)))

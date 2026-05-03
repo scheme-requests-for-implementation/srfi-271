@@ -1,6 +1,6 @@
 ;;; SPDX-FileCopyrightText: 2026 Wolfgang Corcoran-Mathe
 ;;; SPDX-License-Identifier: MIT
-(define-library (srfi NNN random repeatable xoshiro256++)
+(define-library (srfi 271 random repeatable xoshiro256++)
   (export make-random-port
           random-port-state
           )
@@ -13,7 +13,7 @@
           (gauche base)
           (gauche keyword)
           (gauche vport)
-          (prefix (srfi NNN random crypto) crypto:)
+          (prefix (srfi 271 random crypto) crypto:)
           )
   (begin
     ;;; xoshiro256++ implementation transcribed from Wikipedia's

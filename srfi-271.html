@@ -6,12 +6,12 @@ SPDX-License-Identifier: MIT
 -->
   <head>
     <meta charset="utf-8">
-    <title>SRFI ###: Random port libraries</title>
+    <title>SRFI 271: Random port libraries</title>
     <link href="/favicon.png" rel="icon" sizes="192x192" type="image/png">
     <link rel="stylesheet" href="https://srfi.schemers.org/srfi.css" type="text/css">
     <meta name="viewport" content="width=device-width, initial-scale=1"></head>
   <body>
-    <h1><a href="https://srfi.schemers.org/"><img class="srfi-logo" src="https://srfi.schemers.org/srfi-logo.svg" alt="SRFI surfboard logo" /></a>###: Random port libraries</h1>
+    <h1><a href="https://srfi.schemers.org/"><img class="srfi-logo" src="https://srfi.schemers.org/srfi-logo.svg" alt="SRFI surfboard logo" /></a>271: Random port libraries</h1>
 
     <p>by Wolfgang Corcoran-Mathe</p>
 
@@ -240,28 +240,28 @@ SPDX-License-Identifier: MIT
         (<a href="#r7rs"><cite>R7RS</cite></a> section 5.6):</p>
 
         <ul>
-          <li><code>(srfi ???NNN random)</code></li>
-          <li><code>(srfi ???NNN random crypto)</code></li>
-          <li><code>(srfi ???NNN random repeatable)</code></li>
+          <li><code>(srfi 271 random)</code></li>
+          <li><code>(srfi 271 random crypto)</code></li>
+          <li><code>(srfi 271 random repeatable)</code></li>
         </ul>
 
         <p>The usual library-name-format variants for these libraries
         may also be provided:</p>
 
         <ul>
-          <li><code>(srfi :???NNN random crypto)</code>, etc.</li>
-          <li><code>(srfi srfi-???NNN random crypto)</code>, etc.</li>
+          <li><code>(srfi :271 random crypto)</code>, etc.</li>
+          <li><code>(srfi srfi-271 random crypto)</code>, etc.</li>
         </ul>
 
-        <p><code>(srfi ???NNN random)</code> is simply an alias for
-        <code>(srfi ???NNN random crypto)</code>. (Rationale:
+        <p><code>(srfi 271 random)</code> is simply an alias for
+        <code>(srfi 271 random crypto)</code>. (Rationale:
         Rushed or incautious programmers who just want random numbers
         <a href="#riastradh-comments">get the best available.</a>)</p>
 
         <h4 id="library-protocol">Library protocol</h4>
 
-        <p>The <code>(srfi ???NNN random crypto)</code> library and any
-        libraries with the <code>(srfi ???NNN random crypto)</code>
+        <p>The <code>(srfi 271 random crypto)</code> library and any
+        libraries with the <code>(srfi 271 random crypto)</code>
         prefix should provide ports that produce cryptographic-quality
         random data.</p>
 
@@ -276,7 +276,7 @@ SPDX-License-Identifier: MIT
 
         <p>Implementations are encouraged to provide additional libraries
         (e.g. for different pseudorandom generation algorithms) under the
-        <code>(srfi ???NNN random repeatable)</code> “namespace”.  If they do, they must ensure
+        <code>(srfi 271 random repeatable)</code> “namespace”.  If they do, they must ensure
         that each library follows the protocol detailed above.
         <a href="#example-repeatable-library-names">A list of example
         library names is provided below.</a></p>
@@ -308,7 +308,7 @@ SPDX-License-Identifier: MIT
         <h4 id="all-libraries">All libraries</h4>
 
         <p>A <code>make-random-port</code> procedure is exported by each
-        library with the <code>(srfi ???NNN random)</code> prefix.</p>
+        library with the <code>(srfi 271 random)</code> prefix.</p>
 
         <p><code>(make-random-port [initializer])</code> →
         binary-input-port</p>
@@ -328,7 +328,7 @@ SPDX-License-Identifier: MIT
           <h4><code>repeatable</code> libraries</h4>
 
           <p>The following procedures are exported by all libraries with
-          the <code>(srfi ???NNN random repeatable)</code> prefix.</p>
+          the <code>(srfi 271 random repeatable)</code> prefix.</p>
 
           <p><code>(make-random-port [initializer])</code> →
           binary-input-port</p>
@@ -365,7 +365,7 @@ SPDX-License-Identifier: MIT
 
           <p>where <code>crypto:make-random-port</code> denotes the
           <code>make-random-port</code> procedure exported by
-          <code>(srfi ???NNN random crypto)</code>.</p>
+          <code>(srfi 271 random crypto)</code>.</p>
 
           <p><code>(random-port-state <var>random-port</var>)</code> →
           bytevector</p>
@@ -392,7 +392,7 @@ SPDX-License-Identifier: MIT
 
         <dl>
           <dt>
-            <code>(srfi ???NNN random repeatable xorshift)</code>
+            <code>(srfi 271 random repeatable xorshift)</code>
           </dt>
           <dd>
             <p>Library using some kind of
@@ -401,10 +401,10 @@ SPDX-License-Identifier: MIT
           </dd>
 
           <dt>
-            <code>(srfi ???NNN random repeatable xoshiro256++)</code>
+            <code>(srfi 271 random repeatable xoshiro256++)</code>
           </dt>
           <dt>
-            <code>(srfi ???NNN random repeatable xoshiro256**)</code>
+            <code>(srfi 271 random repeatable xoshiro256**)</code>
           </dt>
           <dd>
             <p>
@@ -413,7 +413,7 @@ SPDX-License-Identifier: MIT
             </p>
           </dd>
 
-          <dt><code>(srfi ???NNN random repeatable mwc256)</code></dt>
+          <dt><code>(srfi 271 random repeatable mwc256)</code></dt>
           <dd>
             <p>Library for a 256-bit
             <a href="https://en.wikipedia.org/wiki/Multiply-with-carry_pseudorandom_number_generator">
@@ -431,7 +431,7 @@ SPDX-License-Identifier: MIT
 
       <p>SRFI 27’s random sources are very much like random ports, but
       they support a few operations that cannot be directly implemented
-      in terms of SRFI ???NNN forms:</p>
+      in terms of SRFI 271 forms:</p>
 
       <dl>
         <dt><code>random-source?</code></dt>
@@ -444,20 +444,20 @@ SPDX-License-Identifier: MIT
         <dt><code>random-source-randomize!</code></dt>
         <dt><code>random-source-pseudo-randomize!</code></dt>
         <dd>
-          <p>Why not: SRFI ???NNN does not provide operations for directly
+          <p>Why not: SRFI 271 does not provide operations for directly
           changing the state of an existing random port.</p>
         </dd>
       </dl>
 
       <p>The state-mutation procedures, while rather ugly, pose no real
-      difficulty and could be added as an extension of SRFI ???NNN. There
+      difficulty and could be added as an extension of SRFI 271. There
       is, however, no way to satisfy SRFI 27’s type-disjointness
       requirement.</p>
 
       <h3 id="srfi-194-compatibility">SRFI 194</h3>
 
       <p>Since SRFI 194 is built on SRFI 27’s random sources, it is
-      not directly compatible with SRFI ???NNN, but could be adapted to
+      not directly compatible with SRFI 271, but could be adapted to
       random ports without substantial changes. The missing pieces are,
       as far as I can tell, the <code>default-random-source</code>
       parameter (easily added), and procedures for drawing arbitrary
@@ -465,7 +465,7 @@ SPDX-License-Identifier: MIT
       Implementing these procedures isn't trivial--getting a uniform
       distribution of floats from a random byte sequence is
       particularly tricky--but they will be a practical necessity,
-      in any case, for all users of SRFI ???NNN. (In view of this,
+      in any case, for all users of SRFI 271. (In view of this,
       a revision of SRFI 194 based on random-byte sources might be
       a Good Thing.)</p>
     </div>
@@ -474,7 +474,7 @@ SPDX-License-Identifier: MIT
       <h2>Implementation</h2>
 
       <p>A portable implementation of random ports is currently
-      impossible. A sample implementation of SRFI ???NNN developed for
+      impossible. A sample implementation of SRFI 271 developed for
       Gauche (running on POSIX systems) is available in the SRFI
       repository.</p>
     </div>
