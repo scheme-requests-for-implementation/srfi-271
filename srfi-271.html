@@ -313,7 +313,8 @@
         must return <code>#f</code> when invoked on the port.</p>
 
       <p>The optional <var>initializer</var> argument is used only
-        by <code>repeatable</code> libraries (see below).</p>
+        by <code>make-random-port</code> procedures exported by
+        <code>repeatable</code> libraries (see below).</p>
 
 
       <div id="repeatable-interface">
@@ -346,6 +347,10 @@
               <code>make-random-port</code> reads data from this port
               until it has enough to initialize a new port.  An error is
               signaled if enough data cannot be obtained.</p>
+          </li>
+          <li>
+            <p>If <var>initializer</var> is neither a bytevector nor a
+            binary input port, then the effect is undefined.</p>
           </li>
         </ul>
 
@@ -413,6 +418,9 @@
             source.</p>
         </dd>
       </dl>
+      <p>The <code>(srfi 271 random repeatable xoshiro-kawai)</code>
+      library name is specifically reserved for use by the Gauche
+      Scheme implementation.</p>
     </div>
 
     <h2 id="compatibility">Compatibility</h2>
@@ -421,7 +429,7 @@
 
     <p>SRFI 27’s random sources are very much like random ports, but
       they support a few operations that cannot be directly implemented
-      in terms of SRFI 271 forms:</p>
+      in terms of this SRFI’s forms:</p>
 
     <dl>
       <dt><code>random-source?</code></dt>
@@ -434,20 +442,20 @@
       <dt><code>random-source-randomize!</code></dt>
       <dt><code>random-source-pseudo-randomize!</code></dt>
       <dd>
-        <p>Why not: SRFI 271 does not provide operations for directly
+        <p>Why not: This SRFI does not provide operations for directly
           changing the state of an existing random port.</p>
       </dd>
     </dl>
 
     <p>The state-mutation procedures, while rather ugly, pose no real
-      difficulty and could be added as an extension of SRFI 271. There
+      difficulty and could be added as an extension of this SRFI. There
       is, however, no way to satisfy SRFI 27’s type-disjointness
       requirement.</p>
 
     <h3 id="srfi-194-compatibility">SRFI 194</h3>
 
     <p>Since SRFI 194 is built on SRFI 27’s random sources, it is
-      not directly compatible with SRFI 271, but could be adapted to
+      not directly compatible with this SRFI, but could be adapted to
       random ports without substantial changes. The missing pieces are,
       as far as I can tell, the <code>default-random-source</code>
       parameter (easily added), and procedures for drawing arbitrary
@@ -455,14 +463,14 @@
       Implementing these procedures isn't trivial — getting a uniform
       distribution of floats from a random byte sequence is
       particularly tricky — but they will be a practical necessity,
-      in any case, for all users of SRFI 271. (In view of this,
+      in any case, for all users of this SRFI. (In view of this,
       a revision of SRFI 194 based on random-byte sources might be
       a Good Thing.)</p>
 
     <h2 id="implementation">Implementation</h2>
 
     <p>A portable implementation of random ports is currently
-      impossible. A sample implementation of SRFI 271 developed for
+      impossible. A sample implementation of this SRFI developed for
       Gauche (running on POSIX systems) is available in the
       <a href="https://github.com/scheme-requests-for-implementation/srfi-271">SRFI
         repository</a>.</p>
