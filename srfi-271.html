@@ -232,28 +232,28 @@
         (<a href="#r7rs"><cite>R7RS</cite></a> section 5.6):</p>
 
       <ul>
-        <li><code>(srfi 271 random)</code></li>
-        <li><code>(srfi 271 random crypto)</code></li>
-        <li><code>(srfi 271 random repeatable)</code></li>
+        <li><code>(srfi 271)</code></li>
+        <li><code>(srfi 271 crypto)</code></li>
+        <li><code>(srfi 271 repeatable)</code></li>
       </ul>
 
       <p>The usual library-name-format variants for these libraries
         may also be provided:</p>
 
       <ul>
-        <li><code>(srfi :271 random crypto)</code>, etc.</li>
-        <li><code>(srfi srfi-271 random crypto)</code>, etc.</li>
+        <li><code>(srfi :271 crypto)</code>, etc.</li>
+        <li><code>(srfi srfi-271 crypto)</code>, etc.</li>
       </ul>
 
-      <p><code>(srfi 271 random)</code> is simply an alias for
-        <code>(srfi 271 random crypto)</code>. (Rationale:
+      <p><code>(srfi 271)</code> is simply an alias for
+        <code>(srfi 271 crypto)</code>. (Rationale:
         Rushed or incautious programmers who just want random numbers
         <a href="#riastradh-comments">get the best available.</a>)</p>
 
       <h4 id="library-protocol">Library protocol</h4>
 
-      <p>The <code>(srfi 271 random crypto)</code> library and any
-        libraries with the <code>(srfi 271 random crypto)</code>
+      <p>The <code>(srfi 271 crypto)</code> library and any
+        libraries with the <code>(srfi 271 crypto)</code>
         prefix should provide ports that produce cryptographic-quality
         random data.</p>
 
@@ -268,7 +268,7 @@
 
       <p>Implementations are encouraged to provide additional libraries
         (e.g. for different pseudorandom generation algorithms) under the
-        <code>(srfi 271 random repeatable)</code> “namespace”.  If they do, they must ensure
+        <code>(srfi 271 repeatable)</code> “namespace”.  If they do, they must ensure
         that each library follows the protocol detailed above.
         <a href="#example-repeatable-library-names">A list of example
         library names is provided below.</a></p>
@@ -300,7 +300,7 @@
       <h4 id="all-libraries">All libraries</h4>
 
       <p>A <code>make-random-port</code> procedure is exported by each
-        library with the <code>(srfi 271 random)</code> prefix.</p>
+        library with the <code>(srfi 271)</code> prefix.</p>
 
       <p><code>(make-random-port [initializer])</code> →
         binary-input-port</p>
@@ -321,7 +321,7 @@
         <h4><code>repeatable</code> libraries</h4>
 
         <p>The following procedures are exported by all libraries with
-          the <code>(srfi 271 random repeatable)</code> prefix.</p>
+          the <code>(srfi 271 repeatable)</code> prefix.</p>
 
         <p><code>(make-random-port [initializer])</code> →
           binary-input-port</p>
@@ -364,7 +364,7 @@
 
         <p>where <code>crypto:make-random-port</code> denotes the
           <code>make-random-port</code> procedure exported by
-          <code>(srfi 271 random crypto)</code>.</p>
+          <code>(srfi 271 crypto)</code>.</p>
 
         <p><code>(random-port-state <var>random-port</var>)</code> →
           bytevector</p>
@@ -398,7 +398,7 @@
 
       <dl>
         <dt>
-          <code>(srfi 271 random repeatable xorshift)</code>
+          <code>(srfi 271 repeatable xorshift)</code>
         </dt>
         <dd>
           <p>Library using some kind of
@@ -407,10 +407,10 @@
         </dd>
 
         <dt>
-          <code>(srfi 271 random repeatable xoshiro256++)</code>
+          <code>(srfi 271 repeatable xoshiro256++)</code>
         </dt>
         <dt>
-          <code>(srfi 271 random repeatable xoshiro256**)</code>
+          <code>(srfi 271 repeatable xoshiro256**)</code>
         </dt>
         <dd>
           <p>
@@ -419,7 +419,7 @@
           </p>
         </dd>
 
-        <dt><code>(srfi 271 random repeatable mwc256)</code></dt>
+        <dt><code>(srfi 271 repeatable mwc256)</code></dt>
         <dd>
           <p>Library for a 256-bit
             <a href="https://en.wikipedia.org/wiki/Multiply-with-carry_pseudorandom_number_generator">
@@ -427,7 +427,7 @@
             source.</p>
         </dd>
       </dl>
-      <p>The <code>(srfi 271 random repeatable xoshiro-kawai)</code>
+      <p>The <code>(srfi 271 repeatable xoshiro-kawai)</code>
       library name is specifically reserved for use by the Gauche
       Scheme implementation.</p>
     </div>
