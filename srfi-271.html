@@ -334,7 +334,8 @@
             <p>If <var>initializer</var> is a bytevector
               then the initial state of the random port returned by
               <code>make-random-port</code> is derived from this value.
-              An error is
+              An error satisfying
+              <code>random-port-initialization-error?</code> is
               signaled if <var>initializer</var> does not contain enough
               data to initialize the port.</p>
 
@@ -345,8 +346,9 @@
           <li>
             <p>If <var>initializer</var> is a binary input port, then
               <code>make-random-port</code> reads data from this port
-              until it has enough to initialize a new port.  An error is
-              signaled if enough data cannot be obtained.</p>
+              until it has enough to initialize a new port.  An error
+              satisfying <code>random-port-initialization-error?</code>
+              is signaled if enough data cannot be obtained.</p>
           </li>
           <li>
             <p>If <var>initializer</var> is neither a bytevector nor a
@@ -375,6 +377,13 @@
           in the sense of <code>equal?</code>), then the new port
           must produce the same random sequence as <var>old-port</var>.
         </p>
+
+        <p><code>(random-port-initialization-error? <var>obj</var>)</code>
+          → boolean</p>
+
+        <p>Returns <code>#t</code> if <var>obj</var> is an object signaled
+          by <code>make-random-port</code> in the circumstances described
+          above, and <code>#f</code> otherwise.</p>
       </div>
     </div>
 
