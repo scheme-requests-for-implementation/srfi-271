@@ -403,7 +403,11 @@
         <dd>
           <p>Library using some kind of
             <a href="https://en.wikipedia.org/wiki/Xorshift">xorshift</a>
-            generator.</p>
+            generator.  These are often very fast, but the simplest
+            xorshift implementations may not be very reliable.  It might
+            be appropriate to use such a library for toy or educational
+            programs.
+          </p>
         </dd>
 
         <dt>
@@ -415,21 +419,28 @@
         <dd>
           <p>
             <a href="https://en.wikipedia.org/wiki/Xorshift#xoshiro">
-              xoshiro</a> libraries.
+              xoshiro</a> libraries.  The authors of the xoshiro
+              generators claim they are faster and more reliable than
+              xorshift generators.
           </p>
+        </dd>
+
+        <dt><code>(srfi 271 repeatable xoshiro-kawai)</code></dt>
+        <dd>
+          <p>Reserved for use by the Gauche Scheme implementation.</p>
         </dd>
 
         <dt><code>(srfi 271 repeatable mwc256)</code></dt>
         <dd>
           <p>Library for a 256-bit
             <a href="https://en.wikipedia.org/wiki/Multiply-with-carry_pseudorandom_number_generator">
-              multiply-with-carry</a>
-            source.</p>
+              multiply-with-carry</a> (MWC)
+            source.  MWC generators tend to have extremely long periods,
+            ranging from around 2<subscript>60</subscript> to
+            2<subscript>2,000,000</subscript>.
+          </p>
         </dd>
       </dl>
-      <p>The <code>(srfi 271 repeatable xoshiro-kawai)</code>
-      library name is specifically reserved for use by the Gauche
-      Scheme implementation.</p>
     </div>
 
     <h2 id="compatibility">Compatibility</h2>
