@@ -302,8 +302,7 @@
       <p>A <code>make-random-port</code> procedure is exported by each
         library with the <code>(srfi 271)</code> prefix.</p>
 
-      <p><code>(make-random-port [initializer])</code> →
-        binary-input-port</p>
+      <p><code>(make-random-port)</code> → binary-input-port</p>
 
       <p>Returns a <dfn>random port</dfn>, a binary input port which
         produces random data. Reading
@@ -311,11 +310,6 @@
         If the source represented by a random port would
         block (e.g. due to low system entropy), <code>u8-ready?</code>
         must return <code>#f</code> when invoked on the port.</p>
-
-      <p>The optional <var>initializer</var> argument is used only
-        by <code>make-random-port</code> procedures exported by
-        <code>repeatable</code> libraries (see below).</p>
-
 
       <div id="repeatable-interface">
         <h4><code>repeatable</code> libraries</h4>
