@@ -69,4 +69,18 @@
   (let ((p1 (repeat:make-random-port)))
     (repeat:make-random-port p1)))
 
+(test-assert "random-port-initialization-error? (bytevector source)"
+  (guard (con
+           ((repeat:random-port-initialization-error? con) #t)
+           (else #f))
+    (repeat:make-random-port '#u8())))
+
+(test-assert "random-port-initialization-error? (port source)"
+  (guard (con
+           ((repeat:random-port-initialization-error? con) #t)
+           (else #f))
+    (call-with-port
+     (open-input-bytevector '#u8())
+     repeat:make-random-port)))
+
 (test-end)

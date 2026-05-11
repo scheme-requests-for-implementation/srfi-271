@@ -3,5 +3,6 @@
 (define-library (srfi 271 repeatable)
   (export make-random-port
           random-port-state
+          random-port-initialization-error?
           )
   (import (srfi 271 repeatable xoshiro256++)))

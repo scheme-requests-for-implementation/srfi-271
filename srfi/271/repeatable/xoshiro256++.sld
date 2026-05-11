@@ -3,6 +3,7 @@
 (define-library (srfi 271 repeatable xoshiro256++)
   (export make-random-port
           random-port-state
+          random-port-initialization-error?
           )
   (import (scheme base)
           ;; The native ref forms are buggy in Gauche 0.9.15.
@@ -52,6 +53,18 @@
     (define (xoshiro-bytes! state)
       (remainder (xoshiro! state) #x100))
 
+    ;;; Init errors
+
+    (define-condition-type &random-port-init
+     &error
+     random-port-initialization-error?)
+
+    (define (random-port-initialization-error)
+      (raise-continuable
+       (condition
+        (&message (message "not enough data to initialize port"))
+        (&random-port-init))))
+
     ;;; xoshiro state manipulation
 
     ;; TODO: Remove me when Gauche's version is fixed.
@@ -60,8 +73,7 @@
 
     (define (make-state-from-bytevector bvec)
       (when (< (bytevector-length bvec) state-number-of-bytes)
-        (error "make-random-port: not enough data to initialize port"
-               bvec))
+        (random-port-initialization-error))
       (u64vector (bytevector-u64-native-ref bvec 0)
                  (bytevector-u64-native-ref bvec 8)
                  (bytevector-u64-native-ref bvec 16)
@@ -70,8 +82,7 @@
     (define (make-state-from-port port)
       (let ((bvec (read-bytevector state-number-of-bytes port)))
         (when (eof-object? bvec)
-          (error "make-random-port: not enough data to initialize port"
-                 port))
+          (random-port-initialization-error))
         (make-state-from-bytevector bvec)))
 
     (define (make-xoshiro-random-port init)
