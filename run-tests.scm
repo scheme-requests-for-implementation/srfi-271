@@ -3,8 +3,8 @@
 (import (scheme base)
         (scheme write)
         (srfi 64)
-        (prefix (srfi 271 random crypto) crypto:)
-        (prefix (srfi 271 random repeatable) repeat:)
+        (prefix (srfi 271 entropic) entropic:)
+        (prefix (srfi 271 repeatable) repeat:)
         )
 
 ;;; Test runner
@@ -52,8 +52,8 @@
 
 (test-begin "Random ports")
 
-(test-assert "crypto random ports are input ports"
-  (input-port? (crypto:make-random-port)))
+(test-assert "entropic random ports are input ports"
+  (input-port? (entropic:make-random-port)))
 
 (test-assert "repeatable random ports are input ports"
   (input-port? (repeat:make-random-port)))

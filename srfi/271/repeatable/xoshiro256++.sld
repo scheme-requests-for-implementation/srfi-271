@@ -1,6 +1,6 @@
 ;;; SPDX-FileCopyrightText: 2026 Wolfgang Corcoran-Mathe
 ;;; SPDX-License-Identifier: MIT
-(define-library (srfi 271 random repeatable xoshiro256++)
+(define-library (srfi 271 repeatable xoshiro256++)
   (export make-random-port
           random-port-state
           )
@@ -13,7 +13,7 @@
           (gauche base)
           (gauche keyword)
           (gauche vport)
-          (prefix (srfi 271 random crypto) crypto:)
+          (prefix (srfi 271 entropic) entropic:)
           )
   (begin
     ;;; xoshiro256++ implementation transcribed from Wikipedia's
@@ -80,7 +80,7 @@
     (define make-random-port
       (case-lambda
         (()
-         (call-with-port (crypto:make-random-port) make-random-port))
+         (call-with-port (entropic:make-random-port) make-random-port))
         ((initializer)
          (let ((init
                 (cond ((input-port? initializer)
