@@ -73,7 +73,7 @@
         </ol>
       </li>
       <li><a href="#implementation">Implementation</a></li>
-      <li><a href="#compatibility">Compatibility</a></li>
+      <li><a href="#compatibility">Usage and compatibility</a></li>
       <li><a href="#acknowledgements">Acknowledgements</a></li>
       <li><a href="#references">References</a></li>
       <li><a href="#copyright">Copyright</a></li>
@@ -437,7 +437,41 @@
       </dl>
     </div>
 
-    <h2 id="compatibility">Compatibility</h2>
+    <h2 id="compatibility">Usage and compatibility</h2>
+    
+    <p><em>This section is informational.</em><p>
+    
+    <h3>A higher-level interface</h3>
+
+    <p>Since the libraries specified by this SRFI do not provide
+      procedures for getting generally-useful data types (integers
+      within arbitrary ranges, reals, etc.) out of random ports, a
+      higher-level interface will be needed to make random-port
+      programming congenial.  The multi-library design of this SRFI leads
+      to one important consideration in choosing such an interface: it
+      should work with random ports from any library.  Because Scheme lacks
+      a means of parameterizing one library over the exports of another,
+      we need an interface to random ports in general, not just to the
+      ports from, say, <code>(srfi 271 entropic)</code>, if we wish to
+      avoid multiplying libraries unnecessarily.</p>
+
+    <p>For several reasons, detailed below, SRFI 27 would make a poor
+      high-level interface to random ports.  SRFI 194, while specified in
+      terms of SRFI 27, is a better fit, and it provides more kinds
+      of random-data generators than most programmers will ever need.
+      By wrapping random ports in SRFI 158 generators, however, several
+      useful properties of ports would be lost (see
+      <a href="#rationale">the Rationale</a> for details).  My preference
+      (which may be reified in a future SRFI) is for a library of bland
+      port-reading procedures, e.g. <code>read-integer</code>,
+      <code>read-real</code>, etc., which would do the (sometimes
+      prickly) job of extracting good-quality random values without
+      hiding the ports providing the raw data.</p>
+      
+    <p>That being said, SRFI 27 remains the best-known random-number
+      interface in Scheme, and it may be desirable to provide both SRFI
+      27 and 271 interfaces.  A discussion of SRFI 27 / 271 compatibility
+      issues follows.</p>
 
     <h3>SRFI 27</h3>
 
@@ -465,27 +499,9 @@
       wrapping a random port in a record type.  State mutation could
       then be implemented by replacing the port within the
       random-source wrapper with a newly-created port (since this SRFI
-      only allows states to be set during port creation).</p>
-
-    <p>Ultimately, I doubt this is worth the effort unless you need
-      a “shim” for SRFI 27 compatibility.  It would be far simpler to
-      build a SRFI-194-like library of useful random-number generators
-      directly on top of random ports.</p>
-
-    <h3 id="srfi-194-compatibility">SRFI 194</h3>
-
-    <p>Since SRFI 194 is built on SRFI 27’s random sources, it is
-      not directly compatible with this SRFI, but could be adapted to
-      random ports without substantial changes. The missing pieces are,
-      as far as I can tell, the <code>default-random-source</code>
-      parameter (easily added), and procedures for drawing arbitrary
-      integers or floating-point numbers from random ports.
-      Implementing these procedures isn't trivial — getting a uniform
-      distribution of floats from a random byte sequence is
-      particularly tricky — but they will be a practical necessity,
-      in any case, for all users of this SRFI. (In view of this,
-      a revision of SRFI 194 based on random-byte sources might be
-      a Good Thing.)</p>
+      only allows states to be set during port creation).
+      Ultimately, I doubt this is worth the effort unless you need
+      a “shim” for SRFI 27 compatibility.</p>
 
     <h2 id="implementation">Implementation</h2>
 
