@@ -83,7 +83,32 @@
 
     <h2 id="issues">Issues</h2>
 
-    <p>None at present.</p>
+    <p>A random port from a <code>repeatable</code> library can be
+      initialized from a bytevector (or binary port) which may
+      contain:</p>
+
+    <ol type="A">
+      <li>a state, valid in length and form, extracted by
+      <code>random-port-state</code> from a port with the same backing
+      algorithm, or</li>
+      
+      <li>arbitrary data.</li>
+    </ol>
+
+    <p>There are thus two conceptually distinct initialization modes,
+      and it just might be ambiguous which one
+      <code>make-random-port</code> should apply.  What if the state
+      representation for a given library changes slightly between
+      versions, e.g. if the length of the state remains the same but
+      the values at specific addresses change?  In such a case, if an
+      implementation silently switched modes and treated a stale
+      initializer as arbitrary data, the resulting port would not
+      produce the expected sequence.</p>
+
+    <p>Therefore, should <code>make-random-port</code> accept a Boolean
+      flag requiring it to interpret its initializer “strictly”, i.e. 
+      as a valid and complete random state, and to raise an exception
+      if the initializer doesn't check out?</p>
 
     <h2 id="rationale">Rationale</h2>
 
