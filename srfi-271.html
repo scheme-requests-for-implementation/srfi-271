@@ -146,20 +146,35 @@
       section 7.24.3.2) and other obsolete systems.</p>
 
     <p>SRFI 27 allows random-source states to be manipulated as
-      opaque objects, which does most of the job — you can save the
-      state of a SRFI 27 source and restore it later, although the
-      SRFI doesn’t guarantee that states support an equivalence
-      relation or have datum representations. These properties
-      are essential for allowing random states to be written to
-      disk and read back in during a later session.</p>
+      semi-opaque objects (i.e. unspecified, but having external
+      representations), which does most of the job: you can save the
+      state of a SRFI 27 source and restore it later.  But this is a
+      fragile design.  Lacking a common format for random states, there
+      is no reliable way to seed a SRFI 27 source with anything other
+      than a saved state from the exact same source.</p>
 
-    <p>In this SRFI I go a step further and propose
-      bytevectors as a common representation of random-port states.
-      While this may pose a challenge to adoption (current random
-      source implementations use a wide range of state representations),
-      it has many benefits. Bytevectors can be written, read, and
-      compared for equality, which makes them a good vehicle for
-      saving and restoring states. We also gain the ability to seed
+    <p>First of all, this SRFI does not allow the state of an entropic
+      random port to be extracted — such a state would usually have no
+      meaning. With regard to repeatable random-port states, it goes two
+      steps beyond SRFI 27:</p>
+
+    <ul>
+      <li>
+        <p>It uses bytevectors (of unspecified length and form) to
+          represent random-port states.</p>
+      </li>
+
+      <li>
+        <p>It allows repeatable port states to be initialized from a
+          state value (bytevector) <em>or</em> from arbitrary data
+          supplied via a bytevector or binary input port.</p>
+      </li>
+    </ul>
+
+    <p>While these changes may pose a challenge to adoption (current random
+      source implementations use a wide range of state representations
+      and generally can't be initialized from arbitrary bytes),
+      there are benefits.  We gain the ability to seed
       one random port from the output of another, obviating the
       need for procedures like SRFI 27’s
       <code>random-source-randomize!</code>. (To create a source
