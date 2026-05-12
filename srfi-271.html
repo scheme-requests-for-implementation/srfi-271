@@ -366,30 +366,30 @@
 
         <ul>
           <li>
-            <p>If <var>initializer</var> is a bytevector
-              then the initial state of the random port returned by
-              <code>make-random-port</code> is derived from this value.
+            <p>If <var>initializer</var> is a bytevector or binary input
+              port, then the initial state of the random port returned by
+              <code>make-random-port</code> is derived from data
+              contained by / read from this object.
               An error satisfying
               <code>random-port-initialization-error?</code> is
-              signaled if <var>initializer</var> does not contain enough
-              data to initialize the port.</p>
-
-            <p>Rationale: In tandem with <code>random-port-state</code>,
-              this provides a way to put a random port into a known state.
-            </p>
-          </li>
-          <li>
-            <p>If <var>initializer</var> is a binary input port, then
-              <code>make-random-port</code> reads data from this port
-              until it has enough to initialize a new port.  An error
-              satisfying <code>random-port-initialization-error?</code>
-              is signaled if enough data cannot be obtained.</p>
+              signaled if <code>make-random-port</code> cannot obtain
+              enough data to initialize a random port state.</p>
           </li>
           <li>
             <p>If <var>initializer</var> is neither a bytevector nor a
             binary input port, then the effect is undefined.</p>
           </li>
         </ul>
+
+        <p>Rationale: In tandem with <code>random-port-state</code>,
+          this provides a way to put a random port into a known state.
+        </p>
+        
+        <p>There is no requirement that the data contained by or
+          read from an <var>initializer</var> be a state representation
+          extracted with <code>random-port-state</code>: 
+          <code>make-random-port</code> must support initializing a port
+          from arbitrary data.</p>
 
         <p>Calling <code>make-random-port</code> without an
           <var>initializer</var> is equivalent to</p>
