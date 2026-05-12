@@ -84,8 +84,8 @@
     <h2 id="issues">Issues</h2>
 
     <p>A random port from a <code>repeatable</code> library can be
-      initialized from a bytevector (or binary port) which may
-      contain:</p>
+      initialized from a bytevector (or binary port).  The initialization
+      data drawn from this object may be:</p>
 
     <ol type="A">
       <li>a state, valid in length and form, extracted by
@@ -100,11 +100,10 @@
       <code>make-random-port</code> should apply.  What if the state
       representation for a given library changes slightly between
       versions, e.g. if the length of the state remains the same but
-      the order of values changes?  In such a case, an out-of-date
-      initializer might cause a silent “mode switch”:
-      <code>make-random-port</code>, failing to parse it as a
-      random-state representation, might fall back to treating it as
-      arbitrary data. The result would be a port which — horror of
+      the order of values changes?  In such a case,
+      <code>make-random-port</code> would either mis-parse the data or
+      fall back to treating it as
+      arbitrary. The result would be a port which — horror of
       horrors — does not produce the expected sequence.</p>
 
     <p>Therefore, should <code>make-random-port</code> accept a Boolean
@@ -191,8 +190,7 @@
 
       <li>
         <p>It allows repeatable port states to be initialized from a
-          state value (bytevector) <em>or</em> from arbitrary data
-          supplied via a bytevector or binary input port.</p>
+          state value <em>or</em> from arbitrary data.</p>
       </li>
     </ul>
 
@@ -209,7 +207,7 @@
     <h3>Why ports?</h3>
 
     <p>Input ports have been in the Scheme Reports since the early
-      days (the <a href="#r2rs">R2RS</a>); thus they fit easily into existing programs,
+      days (the <a href="#r2rs">RRRS</a>); thus they fit easily into existing programs,
       and they come with a wealth of standard inspection
       procedures (<code>u8-ready?</code>, etc.).  In contrast, an
       opaque type like SRFI 27's random-source needs a fair amount of
@@ -369,7 +367,7 @@
             <p>If <var>initializer</var> is a bytevector or binary input
               port, then the initial state of the random port returned by
               <code>make-random-port</code> is derived from data
-              contained by / read from this object.
+              contained in / read from this object.
               An error satisfying
               <code>random-port-initialization-error?</code> is
               signaled if <code>make-random-port</code> cannot obtain
@@ -385,7 +383,7 @@
           this provides a way to put a random port into a known state.
         </p>
         
-        <p>There is no requirement that the data contained by or
+        <p>There is no requirement that the data contained in or
           read from an <var>initializer</var> be a state representation
           extracted with <code>random-port-state</code>: 
           <code>make-random-port</code> must support initializing a port
@@ -541,8 +539,7 @@
       then be implemented by replacing the port within the
       random-source wrapper with a newly-created port (since this SRFI
       only allows states to be set during port creation).
-      Ultimately, I doubt this is worth the effort unless you need
-      a “shim” for SRFI 27 compatibility.</p>
+    </p>
 
     <h2 id="implementation">Implementation</h2>
 
@@ -582,7 +579,7 @@
         https://datatracker.ietf.org/doc/html/rfc2119</a></p>
 
     <p id="r2rs">Hal Abelson et al,
-      <cite>Revised Revised Report on Scheme</cite> (R2RS), MIT
+      <cite>Revised Revised Report on Scheme</cite> (RRRS), MIT
       Artificial Intelligence Memo No. 848, August
       1985.</p>
 
