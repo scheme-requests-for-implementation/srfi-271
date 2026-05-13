@@ -232,8 +232,8 @@
 
     <p>Back to the point. Some of the standard port operations that
       are not available for SRFI 158 generators are useful for random
-      ports. For example, in some cases it may be necessary for a random
-      source to block, e.g. until sufficient entropy is available. With
+      ports. For example, some random sources (traditionally, though
+      unfortunately) may block until sufficient entropy is available. With
       random ports, applying <code>u8-ready?</code> should be enough to
       alert you of this situation.</p>
 
@@ -253,7 +253,7 @@
         end-of-file object.</p>
 
       <p>An <dfn>randomized</dfn> random port should
-        produce data from either a hopefully-secure external source
+        produce data from either a high-entropy external source
         (e.g. the operating system’s entropy pool or a hardware
         random-number generator) or from a
         deterministic generation algorithm which has been seeded
