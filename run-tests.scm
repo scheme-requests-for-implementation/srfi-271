@@ -3,8 +3,8 @@
 (import (scheme base)
         (scheme write)
         (srfi 64)
-        (prefix (srfi 271 random crypto) crypto:)
-        (prefix (srfi 271 random repeatable) repeat:)
+        (prefix (srfi 271 randomized) r:)
+        (prefix (srfi 271 determinized) d:)
         )
 
 ;;; Test runner
@@ -52,21 +52,35 @@
 
 (test-begin "Random ports")
 
-(test-assert "crypto random ports are input ports"
-  (input-port? (crypto:make-random-port)))
+(test-assert "randomized random ports are input ports"
+  (input-port? (r:make-random-port)))
 
-(test-assert "repeatable random ports are input ports"
-  (input-port? (repeat:make-random-port)))
+(test-assert "determinized random ports are input ports"
+  (input-port? (d:make-random-port)))
 
 (test-assert "random-port-state returns a bytevector"
-  (bytevector? (repeat:random-port-state (repeat:make-random-port))))
+  (bytevector? (d:random-port-state (d:make-random-port))))
 
-(test-assert "make-random-port (repeatable) accepts a bytevector"
-  (let ((p1 (repeat:make-random-port)))
-    (repeat:make-random-port (repeat:random-port-state p1))))
+(test-assert "make-random-port (determinized) accepts a bytevector"
+  (let ((p1 (d:make-random-port)))
+    (d:make-random-port (d:random-port-state p1))))
 
-(test-assert "make-random-port (repeatable) accepts an input port"
-  (let ((p1 (repeat:make-random-port)))
-    (repeat:make-random-port p1)))
+(test-assert "make-random-port (determinized) accepts an input port"
+  (let ((p1 (d:make-random-port)))
+    (d:make-random-port p1)))
+
+(test-assert "random-port-initialization-error? (bytevector source)"
+  (guard (con
+           ((d:random-port-initialization-error? con) #t)
+           (else #f))
+    (d:make-random-port '#u8())))
+
+(test-assert "random-port-initialization-error? (port source)"
+  (guard (con
+           ((d:random-port-initialization-error? con) #t)
+           (else #f))
+    (call-with-port
+     (open-input-bytevector '#u8())
+     d:make-random-port)))
 
 (test-end)

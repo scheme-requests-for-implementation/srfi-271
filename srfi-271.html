@@ -28,7 +28,7 @@
 
     <p>This SRFI proposes a pattern of libraries for binary input ports
       that produce random bytes. Libraries are divided into
-      “cryptographic” and “repeatable” categories to address different
+      “randomized” and “determinized” categories to address different
       uses of random data. The design leaves the details of random
       number generation to the implementer and the transformation of
       bytes to other types (floats, etc.) to higher-level libraries.
@@ -62,18 +62,18 @@
             <ol type="i">
               <li><a href="#all-libraries">All libraries</a></li>
               <li>
-                <a href="#repeatable-interface"><code>repeatable</code>
+                <a href="#determinized-interface"><code>determinized</code>
                   libraries</a>
               </li>
             </ol>
           <li>
-            <a href="#example-repeatable-library-names">Example
-              <code>repeatable</code> library names</a>
+            <a href="#example-determinized-library-names">Example
+              <code>determinized</code> library names</a>
           </li>
         </ol>
       </li>
       <li><a href="#implementation">Implementation</a></li>
-      <li><a href="#compatibility">Compatibility</a></li>
+      <li><a href="#compatibility">Usage and compatibility</a></li>
       <li><a href="#acknowledgements">Acknowledgements</a></li>
       <li><a href="#references">References</a></li>
       <li><a href="#copyright">Copyright</a></li>
@@ -83,7 +83,33 @@
 
     <h2 id="issues">Issues</h2>
 
-    <p>None at present.</p>
+    <p>A random port from a <code>determinized</code> library can be
+      initialized from a bytevector (or binary port).  The initialization
+      data drawn from this object may be:</p>
+
+    <ol type="A">
+      <li>a state, valid in length and form, extracted by
+      <code>random-port-state</code> from a port with the same backing
+      algorithm, or</li>
+
+      <li>arbitrary data.</li>
+    </ol>
+
+    <p>There are thus two conceptually distinct initialization modes,
+      and it might be ambiguous which one
+      <code>make-random-port</code> should apply.  What if the state
+      representation for a given library changes slightly between
+      versions, e.g. if the length of the state remains the same but
+      the order of values changes?  In such a case,
+      <code>make-random-port</code> would either mis-parse the data or
+      fall back to treating it as
+      arbitrary. The result would be a port which — horror of
+      horrors — does not produce the expected sequence.</p>
+
+    <p>Therefore, should <code>make-random-port</code> accept a Boolean
+      flag requiring it to parse its initialization data strictly, i.e.
+      as a random state representation, and to signal an error if parsing
+      fails?</p>
 
     <h2 id="rationale">Rationale</h2>
 
@@ -100,7 +126,7 @@
       specification.</p>
 
     <p>In this SRFI I take a different tack and try to describe a
-      framework for random-byte generation that adds as little as
+      framework for random-number generation that adds as little as
       necessary to the language. This SRFI:</p>
 
     <ul>
@@ -110,21 +136,26 @@
       </li>
       <li>
         <p>Uses the Scheme library system — and only the Scheme library
-          system — to distinguish between cryptographic-quality
-          sources and repeatable sources, as well as between different
-          kinds of cryptographic and repeatable sources.</p>
+          system — to distinguish between
+          randomized<a href="#ent-note"><sup>*</sup></a>
+          sources and determinized sources, as well as between different
+          kinds of randomized and determinized sources.</p>
       </li>
       <li>
         <p>Specifies no procedures for drawing random data.  The
           random-byte-seeking user is pointed in the direction of
-          <code>read-u8</code> and <code>read-bytevector</code>; those
-          in search of other kinds of random data will find a profusion
-          of options in
-          <a href="https://srfi.schemers.org/srfi-194/">SRFI 194</a>.
-          (But see the <a href="#srfi-194-compatibility">compatibility
-          notes</a>.)</p>
+          <code>read-u8</code> and <code>read-bytevector</code>. Those
+          in search of other kinds of random data will need an additional
+          library; see <a href="#compatibility">Usage and
+          compatibility</a> for some ideas.</p>
       </li>
     </ul>
+
+    <p id="ent-note"><sup>*</sup>: Throughout this SRFI, I use the term
+    “randomized” to denote sources that <em>should</em> produce
+    “cryptographic-quality” random data.  See the
+    <a href="#terminology">Terminology</a> section for a precise — or
+    at least longer — definition.</p>
 
     <h3>Random port states</h3>
 
@@ -133,36 +164,50 @@
       a test suite.  Whether to allow random number generators to
       be “seeded”, and what forms those seeds should take, is
       controversial. Initializing one
-      kind of source may require more “seed” data than another
-      would, so we can’t take the one-size-fits-all approach of
-      <code>srand(3)</code> (<a href="#c23"><cite>C23</cite></a>
+      kind of source may require more “seed” data than another,
+      so we can’t take the one-size-fits-all approach of C’s
+      <code>srand</code> (<a href="#c23"><cite>C23</cite></a>
       section 7.24.3.2) and other obsolete systems.</p>
 
     <p>SRFI 27 allows random-source states to be manipulated as
-      opaque objects, which does most of the job — you can save the
-      sate of a SRFI 27 source and restore it later, although the
-      SRFI doesn’t guarantee that states support an equivalence
-      relation or have datum representations. These properties
-      are essential for allowing random states to be written to
-      disk and read back in during a later session.</p>
+      semi-opaque objects (i.e. unspecified, but having external
+      representations), which does most of the job: you can save the
+      state of a SRFI 27 source and restore it later.  But this is a
+      fragile design.  Lacking a common format for random states, there
+      is no reliable way to seed a SRFI 27 source with anything other
+      than a saved state from the exact same source.</p>
 
-    <p>In this SRFI I go a step further and propose
-      bytevectors as a common representation of random-port states.
-      While this may pose a challenge to adoption (current random
-      source implementations use a wide range of state representations),
-      it has many benefits. Bytevectors can be written, read, and
-      compared for equality, which makes them a good vehicle for
-      saving and restoring states. We also gain the ability to seed
+    <p>First of all, this SRFI does not allow the state of a randomized
+      random port to be extracted — such a state would usually have no
+      meaning. With regard to determinized random-port states, it goes two
+      steps beyond SRFI 27:</p>
+
+    <ul>
+      <li>
+        <p>It uses bytevectors (of unspecified length and form) to
+          represent random-port states.</p>
+      </li>
+
+      <li>
+        <p>It allows determinized port states to be initialized from a
+          state value <em>or</em> from arbitrary data.</p>
+      </li>
+    </ul>
+
+    <p>While these changes may pose a challenge to adoption (current random
+      source implementations use a wide range of state representations
+      and generally can't be initialized from arbitrary bytes),
+      there are benefits.  We gain the ability to seed
       one random port from the output of another, obviating the
       need for procedures like SRFI 27’s
       <code>random-source-randomize!</code>. (To create a source
       with a hard-to-predict initial state, simply seed it with a
-      cryptographic-quality port.)</p>
+      randomized port.)</p>
 
     <h3>Why ports?</h3>
 
     <p>Input ports have been in the Scheme Reports since the early
-      days (the <a href="#r2rs">R2RS</a>); thus they fit easily into existing programs,
+      days (the <a href="#r2rs">RRRS</a>); thus they fit easily into existing programs,
       and they come with a wealth of standard inspection
       procedures (<code>u8-ready?</code>, etc.).  In contrast, an
       opaque type like SRFI 27's random-source needs a fair amount of
@@ -187,8 +232,8 @@
 
     <p>Back to the point. Some of the standard port operations that
       are not available for SRFI 158 generators are useful for random
-      ports. For example, in some cases it may be necessary for a random
-      source to block, e.g. until sufficient entropy is available. With
+      ports. For example, some random sources (traditionally, though
+      unfortunately) may block until sufficient entropy is available. With
       random ports, applying <code>u8-ready?</code> should be enough to
       alert you of this situation.</p>
 
@@ -203,25 +248,25 @@
         2119</a>.
       </p>
 
-      <p>A <dfn>cryptographic-quality</dfn> random-number source
-        produces data from either a hopefully-secure external source
+      <p>A <dfn>random port</dfn> is a binary input port which produces
+        random data. Reading from a random port should not produce an
+        end-of-file object.</p>
+
+      <p>An <dfn>randomized</dfn> random port should
+        produce data from either a high-entropy external source
         (e.g. the operating system’s entropy pool or a hardware
         random-number generator) or from a
         deterministic generation algorithm which has been seeded
         from such a source. The sequence produced by a
-        cryptographic-quality source should be unpredictable, even
+        randomized source should be unpredictable, even
         by an adversary who can read past outputs and simulate
         generation of outputs on demand.</p>
 
-      <p><em>The above definition is an attempt; the details are many
-        and complicated.</em> Exactly what counts as “cryptographic
-        quality” depends on your intentions and adversaries. When in
-        doubt, consult your friendly neighborhood cryptologist.</p>
-
-      <p>A <dfn>repeatable</dfn> random-number source uses a fully
-        deterministic generation algorithm and can be made to produce
-        a known sequence of pseudorandom numbers by being seeded with
-        an appropriate state value.</p>
+      <p>A <dfn>determinized</dfn> random port must produce data
+        generated by a fully
+        deterministic generation algorithm.  Two determinized random
+        ports with the same states must produce the same sequence of
+        pseudorandom numbers.</p>
     </div>
 
     <div id="libraries">
@@ -232,35 +277,34 @@
         (<a href="#r7rs"><cite>R7RS</cite></a> section 5.6):</p>
 
       <ul>
-        <li><code>(srfi 271 random)</code></li>
-        <li><code>(srfi 271 random crypto)</code></li>
-        <li><code>(srfi 271 random repeatable)</code></li>
+        <li><code>(srfi 271)</code></li>
+        <li><code>(srfi 271 randomized)</code></li>
+        <li><code>(srfi 271 determinized)</code></li>
       </ul>
 
       <p>The usual library-name-format variants for these libraries
         may also be provided:</p>
 
       <ul>
-        <li><code>(srfi :271 random crypto)</code>, etc.</li>
-        <li><code>(srfi srfi-271 random crypto)</code>, etc.</li>
+        <li><code>(srfi :271 randomized)</code>, etc.</li>
+        <li><code>(srfi srfi-271 randomized)</code>, etc.</li>
       </ul>
 
-      <p><code>(srfi 271 random)</code> is simply an alias for
-        <code>(srfi 271 random crypto)</code>. (Rationale:
+      <p><code>(srfi 271)</code> is simply an alias for
+        <code>(srfi 271 randomized)</code>. (Rationale:
         Rushed or incautious programmers who just want random numbers
         <a href="#riastradh-comments">get the best available.</a>)</p>
 
       <h4 id="library-protocol">Library protocol</h4>
 
-      <p>The <code>(srfi 271 random crypto)</code> library and any
-        libraries with the <code>(srfi 271 random crypto)</code>
-        prefix should provide ports that produce cryptographic-quality
-        random data.</p>
+      <p>The <code>(srfi 271 randomized)</code> library and any
+        libraries with the <code>(srfi 271 randomized)</code>
+        prefix provide randomized random-number ports.</p>
 
-      <p>Both the <code>crypto</code> and <code>repeatable</code>
+      <p>Both the <code>randomized</code> and <code>determinized</code>
         libraries must export the <code>make-random-port</code> constructor.
-        <code>repeatable</code> libraries must provide an
-        <a href="#repeatable-interface">additional interface</a> for
+        <code>determinized</code> libraries must provide an
+        <a href="#determinized-interface">additional interface</a> for
         creating random ports with predetermined initial
         states.</p>
 
@@ -268,9 +312,9 @@
 
       <p>Implementations are encouraged to provide additional libraries
         (e.g. for different pseudorandom generation algorithms) under the
-        <code>(srfi 271 random repeatable)</code> “namespace”.  If they do, they must ensure
+        <code>(srfi 271 determinized)</code> “namespace”.  If they do, they must ensure
         that each library follows the protocol detailed above.
-        <a href="#example-repeatable-library-names">A list of example
+        <a href="#example-determinized-library-names">A list of example
         library names is provided below.</a></p>
 
       <h4 id="discussion">Discussion</h4>
@@ -289,8 +333,8 @@
 
       <p>If this proposal is incorporated into the R7RS, I suggest
         that aliases under the library prefix <code>(scheme random)</code>
-        (e.g. <code>(scheme random crypto)</code>,
-        <code>(scheme random repeatable)</code>, etc.) be provided.</p>
+        (e.g. <code>(scheme random randomized)</code>,
+        <code>(scheme random determinized)</code>, etc.) be provided.</p>
     </div>
 
 
@@ -300,27 +344,17 @@
       <h4 id="all-libraries">All libraries</h4>
 
       <p>A <code>make-random-port</code> procedure is exported by each
-        library with the <code>(srfi 271 random)</code> prefix.</p>
+        library with the <code>(srfi 271)</code> prefix.</p>
 
-      <p><code>(make-random-port [initializer])</code> →
-        binary-input-port</p>
+      <p><code>(make-random-port)</code> → binary-input-port</p>
 
-      <p>Returns a <dfn>random port</dfn>, a binary input port which
-        produces random data. Reading
-        from a random port should not produce an end-of-file object.
-        If the source represented by a random port would
-        block (e.g. due to low system entropy), <code>u8-ready?</code>
-        must return <code>#f</code> when invoked on the port.</p>
+      <p>Returns a new random port.</p>
 
-      <p>The optional <var>initializer</var> argument is used only
-        by <code>repeatable</code> libraries (see below).</p>
-
-
-      <div id="repeatable-interface">
-        <h4><code>repeatable</code> libraries</h4>
+      <div id="determinized-interface">
+        <h4><code>determinized</code> libraries</h4>
 
         <p>The following procedures are exported by all libraries with
-          the <code>(srfi 271 random repeatable)</code> prefix.</p>
+          the <code>(srfi 271 determinized)</code> prefix.</p>
 
         <p><code>(make-random-port [initializer])</code> →
           binary-input-port</p>
@@ -330,34 +364,40 @@
 
         <ul>
           <li>
-            <p>If <var>initializer</var> is a bytevector
-              then the initial state of the random port returned by
-              <code>make-random-port</code> is derived from this value.
-              An error is
-              signaled if <var>initializer</var> does not contain enough
-              data to initialize the port.</p>
-
-            <p>Rationale: In tandem with <code>random-port-state</code>,
-              this provides a way to put a random port into a known state.
-            </p>
+            <p>If <var>initializer</var> is a bytevector or binary input
+              port, then the initial state of the random port returned by
+              <code>make-random-port</code> is derived from data
+              contained in / read from this object.
+              An error satisfying
+              <code>random-port-initialization-error?</code> is
+              signaled if <code>make-random-port</code> cannot obtain
+              enough data to initialize a random port state.</p>
           </li>
           <li>
-            <p>If <var>initializer</var> is a binary input port, then
-              <code>make-random-port</code> reads data from this port
-              until it has enough to initialize a new port.  An error is
-              signaled if enough data cannot be obtained.</p>
+            <p>If <var>initializer</var> is neither a bytevector nor a
+            binary input port, then the effect is undefined.</p>
           </li>
         </ul>
+
+        <p>Rationale: In tandem with <code>random-port-state</code>,
+          this provides a way to put a random port into a known state.
+        </p>
+        
+        <p>There is no requirement that the data contained in or
+          read from an <var>initializer</var> be a state representation
+          extracted with <code>random-port-state</code>: 
+          <code>make-random-port</code> must support initializing a port
+          from arbitrary data.</p>
 
         <p>Calling <code>make-random-port</code> without an
           <var>initializer</var> is equivalent to</p>
 
-        <pre><code>(call-with-port (crypto:make-random-port)
+        <pre><code>(call-with-port (randomized:make-random-port)
                 make-random-port)</code></pre>
 
-        <p>where <code>crypto:make-random-port</code> denotes the
+        <p>where <code>randomized:make-random-port</code> denotes the
           <code>make-random-port</code> procedure exported by
-          <code>(srfi 271 random crypto)</code>.</p>
+          <code>(srfi 271 randomized)</code>.</p>
 
         <p><code>(random-port-state <var>random-port</var>)</code> →
           bytevector</p>
@@ -370,11 +410,18 @@
           in the sense of <code>equal?</code>), then the new port
           must produce the same random sequence as <var>old-port</var>.
         </p>
+
+        <p><code>(random-port-initialization-error? <var>obj</var>)</code>
+          → boolean</p>
+
+        <p>Returns <code>#t</code> if <var>obj</var> is an object signaled
+          by <code>make-random-port</code> in the circumstances described
+          above, and <code>#f</code> otherwise.</p>
       </div>
     </div>
 
-    <div id="example-repeatable-library-names">
-      <h3>Example <code>repeatable</code> library names</h3>
+    <div id="example-determinized-library-names">
+      <h3>Example <code>determinized</code> library names</h3>
 
       <p><em>This section is informational.</em></p>
 
@@ -384,44 +431,92 @@
 
       <dl>
         <dt>
-          <code>(srfi 271 random repeatable xorshift)</code>
+          <code>(srfi 271 determinized xorshift)</code>
         </dt>
         <dd>
           <p>Library using some kind of
             <a href="https://en.wikipedia.org/wiki/Xorshift">xorshift</a>
-            generator.</p>
+            generator.  These are often very fast, but the simplest
+            xorshift implementations may not be very reliable.  It might
+            be appropriate to use such a library for toy or educational
+            programs.
+          </p>
         </dd>
 
         <dt>
-          <code>(srfi 271 random repeatable xoshiro256++)</code>
+          <code>(srfi 271 determinized xoshiro256++)</code>
         </dt>
         <dt>
-          <code>(srfi 271 random repeatable xoshiro256**)</code>
+          <code>(srfi 271 determinized xoshiro256**)</code>
         </dt>
         <dd>
           <p>
             <a href="https://en.wikipedia.org/wiki/Xorshift#xoshiro">
-              xoshiro</a> libraries.
+              xoshiro</a> libraries.  The authors of the xoshiro
+              generators claim they are faster and more reliable than
+              xorshift generators.
           </p>
         </dd>
 
-        <dt><code>(srfi 271 random repeatable mwc256)</code></dt>
+        <dt><code>(srfi 271 determinized xoshiro-kawai)</code></dt>
+        <dd>
+          <p>Reserved for use by the Gauche Scheme implementation.</p>
+        </dd>
+
+        <dt><code>(srfi 271 determinized mwc256)</code></dt>
         <dd>
           <p>Library for a 256-bit
             <a href="https://en.wikipedia.org/wiki/Multiply-with-carry_pseudorandom_number_generator">
-              multiply-with-carry</a>
-            source.</p>
+              multiply-with-carry</a> (MWC)
+            source.  MWC generators tend to have extremely long periods,
+            ranging from around 2<sup>60</sup> to
+            2<sup>2,000,000</sup>.
+          </p>
         </dd>
       </dl>
     </div>
 
-    <h2 id="compatibility">Compatibility</h2>
+    <h2 id="compatibility">Usage and compatibility</h2>
+
+    <p><em>This section is informational.</em><p>
+
+    <h3>A higher-level interface</h3>
+
+    <p>Since the libraries specified by this SRFI do not provide
+      procedures for getting generally-useful data types (integers
+      within arbitrary ranges, reals, etc.) out of random ports, a
+      higher-level interface will be needed to make random-port
+      programming congenial.  The multi-library design of this SRFI leads
+      to one important consideration in choosing such an interface: it
+      should work with random ports from any library.  Because Scheme lacks
+      a means of parameterizing one library over the exports of another,
+      we need an interface to random ports in general, not just to the
+      ports from, say, <code>(srfi 271 randomized)</code>, if we wish to
+      avoid multiplying libraries unnecessarily.</p>
+
+    <p>For several reasons, detailed below, SRFI 27 would make a poor
+      high-level interface to random ports.  SRFI 194, while specified in
+      terms of SRFI 27, is a better fit, and it provides more kinds
+      of random-data generators than most programmers will ever need.
+      By wrapping random ports in SRFI 158 generators, however, several
+      useful properties of ports would be lost (see
+      <a href="#rationale">the Rationale</a> for details).  My preference
+      (which may be reified in a future SRFI) is for a library of bland
+      port-reading procedures, e.g. <code>read-random-integer</code>,
+      <code>read-random-real</code>, etc., which would do the (sometimes
+      prickly) job of extracting good-quality random values without
+      hiding the ports providing the raw data.</p>
+
+    <p>That being said, SRFI 27 remains the best-known random-number
+      interface in Scheme, and it may be desirable to provide both SRFI
+      27 and 271 interfaces.  A discussion of SRFI 27 / 271 compatibility
+      issues follows.</p>
 
     <h3>SRFI 27</h3>
 
-    <p>SRFI 27’s random sources are very much like random ports, but
+    <p>SRFI 27’s random sources are similar to random ports, but
       they support a few operations that cannot be directly implemented
-      in terms of SRFI 271 forms:</p>
+      in terms of this SRFI’s forms:</p>
 
     <dl>
       <dt><code>random-source?</code></dt>
@@ -434,35 +529,22 @@
       <dt><code>random-source-randomize!</code></dt>
       <dt><code>random-source-pseudo-randomize!</code></dt>
       <dd>
-        <p>Why not: SRFI 271 does not provide operations for directly
+        <p>Why not: This SRFI does not provide operations for directly
           changing the state of an existing random port.</p>
       </dd>
     </dl>
 
-    <p>The state-mutation procedures, while rather ugly, pose no real
-      difficulty and could be added as an extension of SRFI 271. There
-      is, however, no way to satisfy SRFI 27’s type-disjointness
-      requirement.</p>
-
-    <h3 id="srfi-194-compatibility">SRFI 194</h3>
-
-    <p>Since SRFI 194 is built on SRFI 27’s random sources, it is
-      not directly compatible with SRFI 271, but could be adapted to
-      random ports without substantial changes. The missing pieces are,
-      as far as I can tell, the <code>default-random-source</code>
-      parameter (easily added), and procedures for drawing arbitrary
-      integers or floating-point numbers from random ports.
-      Implementing these procedures isn't trivial — getting a uniform
-      distribution of floats from a random byte sequence is
-      particularly tricky — but they will be a practical necessity,
-      in any case, for all users of SRFI 271. (In view of this,
-      a revision of SRFI 194 based on random-byte sources might be
-      a Good Thing.)</p>
+    <p>SRFI 27’s type-disjointness requirement could be satisfied by
+      wrapping a random port in a record type.  State mutation could
+      then be implemented by replacing the port within the
+      random-source wrapper with a newly-created port (since this SRFI
+      only allows states to be set during port creation).
+    </p>
 
     <h2 id="implementation">Implementation</h2>
 
     <p>A portable implementation of random ports is currently
-      impossible. A sample implementation of SRFI 271 developed for
+      impossible. A sample implementation of this SRFI developed for
       Gauche (running on POSIX systems) is available in the
       <a href="https://github.com/scheme-requests-for-implementation/srfi-271">SRFI
         repository</a>.</p>
@@ -474,7 +556,7 @@
 
     <p>Thanks to Taylor Campbell and Alaric Snell-Pym for suggestions
       and elucidations. In particular, the definition of a
-      cryptographic-quality source was adapted from
+      randomized port was adapted from
       <a href="#asp-rng">Alaric’s description</a> of the desirable
       properties of such a source; any inaccuracies in the SRFI’s
       version are my own doing.</p>
@@ -497,7 +579,8 @@
         https://datatracker.ietf.org/doc/html/rfc2119</a></p>
 
     <p id="r2rs">Hal Abelson et al,
-      <cite>Revised Revised Report on Scheme</cite> (R2RS), August
+      <cite>Revised Revised Report on Scheme</cite> (RRRS), MIT
+      Artificial Intelligence Memo No. 848, August
       1985.</p>
 
     <p id="r7rs">Alex Shinn, John Cowan, &amp; Arthur A. Gleckler,
