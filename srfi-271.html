@@ -403,7 +403,7 @@
         <p><code>(random-port-state <var>random-port</var>)</code> →
           bytevector</p>
 
-        <p>Returns a bytevector representing the current state
+        <p>Returns an immutable bytevector representing the current state
           of <var>random-port</var>. If a new port is created with
           <code>(make-random-port <var>state</var>)</code>, where
           <var>state</var> is the value of <code>(random-port-state
