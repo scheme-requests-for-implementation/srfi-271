@@ -83,4 +83,9 @@
      (open-input-bytevector '#u8())
      d:make-random-port)))
 
+(test-assert "det. ports with equal states give same initial bytes"
+  (let* ((p1 (d:make-random-port))
+         (p2 (d:make-random-port (d:random-port-state p1))))
+    (equal? (read-bytevector 8 p1) (read-bytevector 8 p2))))
+
 (test-end)
