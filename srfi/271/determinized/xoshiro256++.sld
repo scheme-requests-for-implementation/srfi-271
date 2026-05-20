@@ -67,23 +67,23 @@
 
     ;;; xoshiro state manipulation
 
+    (define (xoshiro-state? x)
+      (and (u64vector? x)
+           (= 4 (u64vector-length x))
+           (not (u64vector-every zero? x))))
+
     ;; TODO: Remove me when Gauche's version is fixed.
     (define (bytevector-u64-native-ref bvec k)
       (bytevector-u64-ref bvec k (native-endianness)))
-
-    (define (make-state-from-bytevector bvec)
-      (when (< (bytevector-length bvec) state-number-of-bytes)
-        (random-port-initialization-error))
-      (u64vector (bytevector-u64-native-ref bvec 0)
-                 (bytevector-u64-native-ref bvec 8)
-                 (bytevector-u64-native-ref bvec 16)
-                 (bytevector-u64-native-ref bvec 24)))
 
     (define (make-state-from-port port)
       (let ((bvec (read-bytevector state-number-of-bytes port)))
         (when (eof-object? bvec)
           (random-port-initialization-error))
-        (make-state-from-bytevector bvec)))
+        (u64vector (bytevector-u64-native-ref bvec 0)
+                   (bytevector-u64-native-ref bvec 8)
+                   (bytevector-u64-native-ref bvec 16)
+                   (bytevector-u64-native-ref bvec 24))))
 
     (define (make-xoshiro-random-port init)
       (make <random-port> init xoshiro-bytes!))
@@ -96,23 +96,12 @@
          (let ((init
                 (cond ((input-port? initializer)
                        (make-state-from-port initializer))
-                      ((bytevector? initializer)
-                       (make-state-from-bytevector initializer))
+                      ((xoshiro-state? initializer)
+                       (u64vector-copy initializer))
                       (else
                        (error "make-random-port: invalid initializer"
                               initializer)))))
            (make-xoshiro-random-port init)))))
-
-    ;; Get the state from *xport* and convert it to a bytevector.
-    (define (random-port-state xport)
-      (let ((state (random-port-raw-state xport))
-            (bvec (make-bytevector state-number-of-bytes)))
-        (do ((i 0 (+ i 1))
-             (k 0 (+ k 8)))
-            ((= i 4) bvec)
-          (bytevector-u64-native-set! bvec
-                                      k
-                                      (u64vector-ref state i)))))
 
     ;;; Gauche virtual port type
 
@@ -129,7 +118,7 @@
     ;; since a method would have access to the port object itself.
 
     (define-class <random-port> (<virtual-input-port>)
-      ((state :getter random-port-raw-state)))
+      ((state :getter random-port-state)))
 
     (define-method initialize ((self <random-port>) initargs)
       (let ((state (car initargs))

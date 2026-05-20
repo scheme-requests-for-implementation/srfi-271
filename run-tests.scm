@@ -58,24 +58,11 @@
 (test-assert "determinized random ports are input ports"
   (input-port? (d:make-random-port)))
 
-(test-assert "random-port-state returns a bytevector"
-  (bytevector? (d:random-port-state (d:make-random-port))))
-
-(test-assert "make-random-port (determinized) accepts a bytevector"
-  (let ((p1 (d:make-random-port)))
-    (d:make-random-port (d:random-port-state p1))))
-
 (test-assert "make-random-port (determinized) accepts an input port"
   (let ((p1 (d:make-random-port)))
     (d:make-random-port p1)))
 
-(test-assert "random-port-initialization-error? (bytevector source)"
-  (guard (con
-           ((d:random-port-initialization-error? con) #t)
-           (else #f))
-    (d:make-random-port '#u8())))
-
-(test-assert "random-port-initialization-error? (port source)"
+(test-assert "random-port-initialization-error?"
   (guard (con
            ((d:random-port-initialization-error? con) #t)
            (else #f))
