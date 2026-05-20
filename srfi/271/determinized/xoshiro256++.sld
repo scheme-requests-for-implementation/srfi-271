@@ -77,13 +77,19 @@
       (bytevector-u64-ref bvec k (native-endianness)))
 
     (define (make-state-from-port port)
-      (let ((bvec (read-bytevector state-number-of-bytes port)))
-        (when (eof-object? bvec)
-          (random-port-initialization-error))
-        (u64vector (bytevector-u64-native-ref bvec 0)
-                   (bytevector-u64-native-ref bvec 8)
-                   (bytevector-u64-native-ref bvec 16)
-                   (bytevector-u64-native-ref bvec 24))))
+      (let ((generate-state
+             (lambda ()
+               (let ((bvec
+                      (read-bytevector state-number-of-bytes port)))
+                 (when (eof-object? bvec)
+                   (random-port-initialization-error))
+                 (u64vector (bytevector-u64-native-ref bvec 0)
+                            (bytevector-u64-native-ref bvec 8)
+                            (bytevector-u64-native-ref bvec 16)
+                            (bytevector-u64-native-ref bvec 24))))))
+        ;; Generate states until we get one that isn't all zeros.
+        (do ((s (generate-state) (generate-state)))
+            ((xoshiro-state? s) s))))
 
     (define (make-xoshiro-random-port init)
       (make <random-port> init xoshiro-bytes!))
