@@ -134,8 +134,6 @@
 
     <h3>Random port states</h3>
 
-    <!-- TODO: This section needs to be updated more thoroughly. -->
-
     <p>Everyone agrees that it is sometimes useful to generate
       the same random sequence several times, e.g. on each run of
       a test suite.  Whether to allow random number generators to
@@ -146,41 +144,29 @@
       <code>srand</code> (<a href="#c23"><cite>C23</cite></a>
       section 7.24.3.2) and other obsolete systems.</p>
 
-    <p>SRFI 27 allows random-source states to be manipulated as
-      semi-opaque objects (i.e. unspecified, but having external
-      representations), which does most of the job: you can save the
-      state of a SRFI 27 source and restore it later.  But this is a
-      fragile design.  Lacking a common format for random states, there
-      is no reliable way to seed a SRFI 27 source with anything other
-      than a saved state from the exact same source.</p>
+    <p>This SRFI takes an approach similar to that of SRFI 27 in
+      allowing random-port states to be manipulated as
+      semi-opaque objects (i.e. objects of unspecified type with
+      external representations).
+      Whereas SRFI 27 allows the user to
+      get or set the state of any source, however, this SRFI only
+      allows determinized random ports to be so manipulated,
+      since the states of randomized ports cannot in general
+      be represented by Scheme values.  (Consider a random port
+      backed by a hardware random-number generator, for example.)
 
-    <p>First of all, this SRFI does not allow the state of a randomized
-      random port to be extracted — such a state would usually have no
-      meaning. With regard to determinized random-port states, it goes two
-      steps beyond SRFI 27:</p>
-
-    <ul>
-      <li>
-        <p>Like SRFI 27, it represents random states with printable,
-          comparable objects of an unspecified type.</p>
-      </li>
-
-      <li>
-        <p>It allows determinized port states to be initialized from a
-          state object <em>or</em> from arbitrary data read from a
-          port.</p>
-      </li>
-    </ul>
-
-    <p>While these changes may pose a challenge to adoption (current random
-      source implementations use a wide range of state representations
-      and generally can't be initialized from arbitrary bytes),
-      there are benefits.  We gain the ability to seed
-      one random port from the output of another, obviating the
-      need for procedures like SRFI 27’s
-      <code>random-source-randomize!</code>. (To create a source
-      with a hard-to-predict initial state, simply seed it with a
-      randomized port.)</p>
+    <p>Random ports are seeded only when they are created.  The
+      <code>make-random-port</code> constructor accepts an optional state
+      argument which, if present, is used as the initial state for the new
+      port.  SRFI 27’s “reseeding” interface
+      (<code>random-source-state-set!</code>, etc.) has been discarded as
+      unnecessary, since it is easy enough to create a new random port
+      with a desired state.  Random ports can also be seeded with data
+      from other random ports; this eliminates the need for awkward
+      initialization procedures like
+      <code>random-source-randomize!</code>.  Given a single good-quality
+      randomized port, this makes it easy to create determinzed ports with
+      random initial states.</p>
 
     <h3>Why ports?</h3>
 
