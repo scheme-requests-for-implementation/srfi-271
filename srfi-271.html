@@ -374,6 +374,31 @@
           <code>make-random-port</code> procedure exported by
           <code>(srfi 271 randomized)</code>.</p>
 
+        <div class="note">
+          <h5>Note</h5>
+
+          <p>The difference between initializing a random port with a
+            random port and initializing it with a random-port
+            <em>state</em> is a little subtle.  The following examples
+            are not equivalent:</p>
+
+          <ol>
+            <li>
+              <p><code>(make-random-port rport)</code></p>
+            </li>
+            <li>
+              <p>
+                <code>(make-random-port (random-port-state rport))</code>
+              </p>
+            </li>
+          </ol>
+
+          <p>The first example returns a port whose initial state is
+            constructed from (random) data read from the random port
+            <var>rport</var>, while the second returns a port whose
+            initial state is the same as <var>rport</var>’s state.</p>
+        </div>
+
         <p><code>(random-port-state <var>random-port</var>)</code> →
           state</p>
 
