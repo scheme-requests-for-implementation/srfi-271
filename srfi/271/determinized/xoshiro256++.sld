@@ -111,6 +111,33 @@
         (u64vector-set! state 3 (next))
         state))
 
+    ;;; xoshiro warmup
+
+    ;; Returns the total number of 1 bits in *state*'s elements.
+    (define (xoshiro-state-bit-count state)
+      (u64vector-fold (lambda (s k) (+ s (bit-count k)))
+                      0
+                      state))
+
+    ;; True if the binary representation of *state* has an
+    ;; approximately even distribution of 1s and 0s.
+    (define (xoshiro-state-scrambled? state)
+      (let ((ratio (/ (xoshiro-state-bit-count state)
+                      (* state-number-of-bytes 8))))
+        (< 0.48 ratio 0.52)))
+
+    (define (random-port-warmup! port)
+      (letrec*
+       ((c 0)
+        (warmup!
+         (lambda ()
+           (unless (xoshiro-state-scrambled? (random-port-state port))
+             (set! c (+ c 1))
+             (read-u8 port)
+             (warmup!)))))
+        (warmup!)
+        port))
+
     (define (make-xoshiro-random-port init)
       (make <random-port> init xoshiro-bytes!))
 
@@ -119,17 +146,19 @@
         (()
          (call-with-port (r:make-random-port) make-random-port))
         ((initializer)
-         (let ((init
-                (cond ((input-port? initializer)
-                       (make-state-from-port initializer))
-                      ((xoshiro-state? initializer)
-                       (u64vector-copy initializer))
-                      ((exact-integer? initializer)
-                       (make-state-from-integer initializer))
-                      (else
-                       (error "make-random-port: invalid initializer"
-                              initializer)))))
-           (make-xoshiro-random-port init)))))
+         (let* ((init
+                 (cond ((input-port? initializer)
+                        (make-state-from-port initializer))
+                       ((xoshiro-state? initializer)
+                        (u64vector-copy initializer))
+                       ((exact-integer? initializer)
+                        (make-state-from-integer initializer))
+                       (else
+                        (error "make-random-port: invalid initializer"
+                               initializer))))
+                (port (make-xoshiro-random-port init)))
+           (random-port-warmup! port)
+           port))))
 
     ;;; Gauche virtual port type
 
