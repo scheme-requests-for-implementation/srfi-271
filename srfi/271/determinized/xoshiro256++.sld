@@ -117,12 +117,19 @@
                       (* state-number-of-bytes 8))))
         (< 0.48 ratio 0.52)))
 
+    ;; Give up and signal an initialization error if a scrambled
+    ;; xoshiro state can't be obtained after this number of warmup
+    ;; cycles.
+    (define maximum-warmup-cycles 256)
+
     (define (random-port-warmup! port)
       (letrec*
        ((c 0)
         (warmup!
          (lambda ()
            (unless (xoshiro-state-scrambled? (random-port-state port))
+             (when (>= c maximum-warmup-cycles)
+               (random-port-initialization-error))
              (set! c (+ c 1))
              (read-u8 port)
              (warmup!)))))
