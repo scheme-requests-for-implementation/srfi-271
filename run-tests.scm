@@ -62,6 +62,9 @@
   (let ((p1 (d:make-random-port)))
     (d:make-random-port p1)))
 
+(test-assert "make-random-port (determinized) accepts an exact integer"
+  (d:make-random-port 17))
+
 (test-assert "random-port-initialization-error?"
   (guard (con
            ((d:random-port-initialization-error? con) #t)

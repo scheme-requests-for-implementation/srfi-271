@@ -27,6 +27,9 @@
     (define (+/mask a b)
       (bitwise-and (+ a b) mask))
 
+    (define (*/mask a b)
+      (bitwise-and (* a b) mask))
+
     (define (ashift/mask n c)
       (bitwise-and (arithmetic-shift n c) mask))
 
@@ -91,6 +94,23 @@
         (do ((s (generate-state) (generate-state)))
             ((xoshiro-state? s) s))))
 
+    ;; Based on Vigna's public-domain splitmix64.
+    (define (make-state-from-integer x)
+      (let ((next
+             (lambda ()
+               (set! x (+/mask x #x9e3779b97f4a7c15))
+               (let ((z (*/mask (bitwise-xor x (ashift/mask x -30))
+                                #xbf58476d1ce4e5b9)))
+                 (set! z (*/mask (bitwise-xor z (ashift/mask z -27))
+                                 #x94d049bb133111eb))
+                 (bitwise-xor z (ashift/mask z -31)))))
+            (state (make-u64vector 4)))
+        (u64vector-set! state 0 (next))
+        (u64vector-set! state 1 (next))
+        (u64vector-set! state 2 (next))
+        (u64vector-set! state 3 (next))
+        state))
+
     (define (make-xoshiro-random-port init)
       (make <random-port> init xoshiro-bytes!))
 
@@ -104,6 +124,8 @@
                        (make-state-from-port initializer))
                       ((xoshiro-state? initializer)
                        (u64vector-copy initializer))
+                      ((exact-integer? initializer)
+                       (make-state-from-integer initializer))
                       (else
                        (error "make-random-port: invalid initializer"
                               initializer)))))
