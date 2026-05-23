@@ -6,8 +6,7 @@
           random-port-initialization-error?
           )
   (import (scheme base)
-          ;; The native ref forms are buggy in Gauche 0.9.15.
-          (except (scheme bytevector) bytevector-u64-native-ref)
+          (scheme bytevector)
           (scheme case-lambda)
           (srfi 151)
           (srfi 160 u64)
@@ -75,24 +74,16 @@
            (= 4 (u64vector-length x))
            (not (u64vector-every zero? x))))
 
-    ;; TODO: Remove me when Gauche's version is fixed.
-    (define (bytevector-u64-native-ref bvec k)
-      (bytevector-u64-ref bvec k (native-endianness)))
+    (define BE (endianness big))
 
     (define (make-state-from-port port)
-      (let ((generate-state
-             (lambda ()
-               (let ((bvec
-                      (read-bytevector state-number-of-bytes port)))
-                 (when (eof-object? bvec)
-                   (random-port-initialization-error))
-                 (u64vector (bytevector-u64-native-ref bvec 0)
-                            (bytevector-u64-native-ref bvec 8)
-                            (bytevector-u64-native-ref bvec 16)
-                            (bytevector-u64-native-ref bvec 24))))))
-        ;; Generate states until we get one that isn't all zeros.
-        (do ((s (generate-state) (generate-state)))
-            ((xoshiro-state? s) s))))
+      (let ((bvec (read-bytevector state-number-of-bytes port)))
+        (when (eof-object? bvec)
+          (random-port-initialization-error))
+        (u64vector (bytevector-u64-ref bvec 0 BE)
+                   (bytevector-u64-ref bvec 8 BE)
+                   (bytevector-u64-ref bvec 16 BE)
+                   (bytevector-u64-ref bvec 24 BE))))
 
     ;; Based on Vigna's public-domain splitmix64.
     (define (make-state-from-integer x)
