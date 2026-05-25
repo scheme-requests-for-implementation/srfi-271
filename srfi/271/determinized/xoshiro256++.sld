@@ -120,7 +120,7 @@
     ;; Give up and signal an initialization error if a scrambled
     ;; xoshiro state can't be obtained after this number of warmup
     ;; cycles.
-    (define maximum-warmup-cycles 256)
+    (define maximum-warmup-cycles 1024)
 
     (define (random-port-warmup! port)
       (letrec*
