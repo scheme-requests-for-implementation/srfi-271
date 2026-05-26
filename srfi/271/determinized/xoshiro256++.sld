@@ -20,6 +20,14 @@
     ;;; xoshiro256++ implementation transcribed from Wikipedia's
     ;;; C version (based on Vigna).
 
+    ;;; WARNING: This is very much a sample implementation.  Please do
+    ;;; not use this code in any application where security is a
+    ;;; concern.  While I will try to fix any bugs uncovered in this
+    ;;; implementation as they are revealed, I still request that you
+    ;;; use something field-tested instead, preferably written and
+    ;;; audited by competent numerical programmers.  My understanding
+    ;;; of the arcana of pseudorandom number generation is minimal.
+
     (define state-number-of-bytes 32)
 
     (define mask (- (expt 2 64) 1))
