@@ -8,6 +8,7 @@
   (import (scheme base)
           (scheme bytevector)
           (scheme case-lambda)
+          (scheme write)
           (srfi 151)
           (srfi 160 u64)
           (gauche base)
@@ -117,6 +118,9 @@
                       (* state-number-of-bytes 8))))
         (< 0.48 ratio 0.52)))
 
+    ;; Run at least this many warmup cycles.
+    (define minimum-warmup-cycles 8)
+
     ;; Give up and signal an initialization error if a scrambled
     ;; xoshiro state can't be obtained after this number of warmup
     ;; cycles.
@@ -127,12 +131,15 @@
        ((c 0)
         (warmup!
          (lambda ()
-           (unless (xoshiro-state-scrambled? (random-port-state port))
-             (when (>= c maximum-warmup-cycles)
-               (random-port-initialization-error))
-             (set! c (+ c 1))
-             (read-u8 port)
-             (warmup!)))))
+           (cond ((and (xoshiro-state-scrambled?
+                        (random-port-state port))
+                       (>= c minimum-warmup-cycles)))
+                 ((>= c maximum-warmup-cycles)
+                  (random-port-initialization-error))
+                 (else
+                  (set! c (+ c 1))
+                  (read-u8 port)
+                  (warmup!))))))
         (warmup!)
         port))
 
