@@ -131,9 +131,9 @@
        ((c 0)
         (warmup!
          (lambda ()
-           (cond ((and (xoshiro-state-scrambled?
-                        (random-port-state port))
-                       (>= c minimum-warmup-cycles)))
+           (cond ((and (>= c minimum-warmup-cycles)
+                       (xoshiro-state-scrambled?
+                        (random-port-state port))))
                  ((>= c maximum-warmup-cycles)
                   (random-port-initialization-error))
                  (else
