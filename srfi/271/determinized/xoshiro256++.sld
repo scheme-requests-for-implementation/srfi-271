@@ -162,7 +162,8 @@
                         (error "make-random-port: invalid initializer"
                                initializer))))
                 (port (make-xoshiro-random-port init)))
-           (random-port-warmup! port)
+           (unless (xoshiro-state? initializer)
+             (random-port-warmup! port))
            port))))
 
     ;;; Gauche virtual port type
