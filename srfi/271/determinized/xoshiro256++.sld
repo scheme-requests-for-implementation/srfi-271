@@ -35,9 +35,6 @@
     (define (+/mask a b)
       (bitwise-and (+ a b) mask))
 
-    (define (*/mask a b)
-      (bitwise-and (* a b) mask))
-
     (define (ashift/mask n c)
       (bitwise-and (arithmetic-shift n c) mask))
 
@@ -164,8 +161,6 @@
                         (make-state-from-port initializer))
                        ((xoshiro-state? initializer)
                         (u64vector-copy initializer))
-                       ((exact-integer? initializer)
-                        (make-state-from-integer initializer))
                        (else
                         (error "make-random-port: invalid initializer"
                                initializer))))
