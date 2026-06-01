@@ -362,7 +362,13 @@
               <code>random-port-initialization-error?</code> is
               signaled if <code>make-random-port</code> cannot obtain
               enough data from <var>initializer</var> to initialize a
-              random port state.</p>
+              random port state, or if the data obtained is unsuitable
+              for initializing the implementation’s pseudorandom
+              generator.  Implementations should allow initialization
+              from arbitrary infinite sequences.  An exception is the
+              all-zeros sequence (0, 0, …), which is known to cause
+              problems for many algorithms; implementations may allow
+              initialization by such a sequence.</p>
           </li>
           <li>
             <p>If <var>initializer</var> is neither a random state nor a
