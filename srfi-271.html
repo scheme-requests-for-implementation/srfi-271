@@ -164,7 +164,9 @@
       allows determinized random ports to be so manipulated,
       since the states of randomized ports cannot in general
       be represented by Scheme values.  (Consider a random port
-      backed by a hardware random-number generator, for example.)</p>
+      backed by a hardware random-number generator, for example.)
+      Random-port states can also be compared for equality with
+      <code>random-state=?</code>, a feature missing from SRFI 27.</p>
 
     <p>Random ports are seeded only when they are created.  The
       <code>make-random-port</code> constructor accepts an optional state
@@ -243,11 +245,17 @@
         ports with the same states must produce the same sequence of
         pseudorandom numbers.</p>
 
-      <p>A <dfn>random state</dfn> is a semi-opaque object representing
+      <p>A <dfn>random state</dfn> is an object representing
         the state of a random port (or, more precisely, of the
-        random-number generator embodied by a random port).  Random
-        states must have an external representation and be comparable
-        with <code>equal?</code>.</p>
+        random-number generator embodied by a random port).  A type
+        of random states must have an external representation and must
+        support <code>write</code>/<code>read</code> invariance: a random
+        state that has been returned as part of a literal expression,
+        or read using the <code>read</code> procedure, and subsequently
+        written out using the <code>write</code> procedure, will read
+        back in as the same state in the sense of
+        <a href="#random-state-equalp"><code>random-state=?</code></a>.
+        (cf. R7RS §6.5.)</p>
     </div>
 
     <div id="libraries">
@@ -420,14 +428,16 @@
           state</p>
 
         <p>Returns an immutable random-state object representing the
-          current state
-          of <var>random-port</var>. If a new port is created with
-          <code>(make-random-port <var>state</var>)</code>, where
-          <var>state</var> is the value of <code>(random-port-state
-            <var>old-port</var>)</code> (or is equal to that value
-          in the sense of <code>equal?</code>), then the new port
-          must produce the same random sequence as <var>old-port</var>.
-        </p>
+          current state of <var>random-port</var>.</p>
+
+        <p id="random-state-equalp"><code>(random-state=?
+          <var>state<sub>1</sub></var> <var>state<sub>2</sub></var>
+          <var>state<sub>3</sub></var> …)</code> → state</p>
+
+        <p>Returns <code>#t</code> if all the <var>state</var>s are
+          equal, and <code>#f</code> otherwise.  Random states are
+          considered to be equal if random ports initialized to them
+          produce the same sequence.</p>
 
         <p><code>(random-port-initialization-error? <var>obj</var>)</code>
           → boolean</p>

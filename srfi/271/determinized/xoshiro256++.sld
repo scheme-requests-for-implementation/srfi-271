@@ -3,6 +3,7 @@
 (define-library (srfi 271 determinized xoshiro256++)
   (export make-random-port
           random-port-state
+          random-state=?
           random-port-initialization-error?
           )
   (import (scheme base)
@@ -107,6 +108,18 @@
         (u64vector-set! state 2 (next))
         (u64vector-set! state 3 (next))
         state))
+
+    ;; Exported
+    (define (random-state=? state1 state2 . rest-states)
+      (let ((check-state
+             (lambda (x)
+               (unless (xoshiro-state? x)
+                 (error "invalid argument: not a random-port state"
+                        x)))))
+        (check-state state1)
+        (check-state state2)
+        (for-each check-state rest-states)
+        (apply u64vector= state1 state2 rest-states)))
 
     ;;; xoshiro warmup
 

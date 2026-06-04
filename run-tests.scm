@@ -75,4 +75,15 @@
          (p2 (d:make-random-port (d:random-port-state p1))))
     (equal? (read-bytevector 8 p1) (read-bytevector 8 p2))))
 
+(test-assert "det. ports with equal states (random-state=?)"
+  (let* ((p1 (d:make-random-port))
+         (p2 (d:make-random-port (d:random-port-state p1)))
+         (p3 (d:make-random-port (d:random-port-state p2))))
+    (read-u8 p1)
+    (read-u8 p2)
+    (read-u8 p3)
+    (d:random-state=? (d:random-port-state p1)
+                      (d:random-port-state p2)
+                      (d:random-port-state p3))))
+
 (test-end)
