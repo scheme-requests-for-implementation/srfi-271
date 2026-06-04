@@ -6,9 +6,9 @@
           random-port-initialization-error?
           )
   (import (scheme base)
-          ;; The native ref forms are buggy in Gauche 0.9.15.
-          (except (scheme bytevector) bytevector-u64-native-ref)
+          (scheme bytevector)
           (scheme case-lambda)
+          (scheme write)
           (srfi 151)
           (srfi 160 u64)
           (gauche base)
@@ -19,6 +19,14 @@
   (begin
     ;;; xoshiro256++ implementation transcribed from Wikipedia's
     ;;; C version (based on Vigna).
+
+    ;;; WARNING: This is very much a sample implementation.  Please do
+    ;;; not use this code in any application where security is a
+    ;;; concern.  While I will try to fix any bugs uncovered in this
+    ;;; implementation as they are revealed, I still request that you
+    ;;; use something field-tested instead, preferably written and
+    ;;; audited by competent numerical programmers.  My understanding
+    ;;; of the arcana of pseudorandom number generation is minimal.
 
     (define state-number-of-bytes 32)
 
@@ -67,23 +75,78 @@
 
     ;;; xoshiro state manipulation
 
-    ;; TODO: Remove me when Gauche's version is fixed.
-    (define (bytevector-u64-native-ref bvec k)
-      (bytevector-u64-ref bvec k (native-endianness)))
+    (define (xoshiro-state? x)
+      (and (u64vector? x)
+           (= 4 (u64vector-length x))
+           (not (u64vector-every zero? x))))
 
-    (define (make-state-from-bytevector bvec)
-      (when (< (bytevector-length bvec) state-number-of-bytes)
-        (random-port-initialization-error))
-      (u64vector (bytevector-u64-native-ref bvec 0)
-                 (bytevector-u64-native-ref bvec 8)
-                 (bytevector-u64-native-ref bvec 16)
-                 (bytevector-u64-native-ref bvec 24)))
+    (define BE (endianness big))
 
     (define (make-state-from-port port)
       (let ((bvec (read-bytevector state-number-of-bytes port)))
         (when (eof-object? bvec)
           (random-port-initialization-error))
-        (make-state-from-bytevector bvec)))
+        (u64vector (bytevector-u64-ref bvec 0 BE)
+                   (bytevector-u64-ref bvec 8 BE)
+                   (bytevector-u64-ref bvec 16 BE)
+                   (bytevector-u64-ref bvec 24 BE))))
+
+    ;; Based on Vigna's public-domain splitmix64.
+    (define (make-state-from-integer x)
+      (let ((next
+             (lambda ()
+               (set! x (+/mask x #x9e3779b97f4a7c15))
+               (let ((z (*/mask (bitwise-xor x (ashift/mask x -30))
+                                #xbf58476d1ce4e5b9)))
+                 (set! z (*/mask (bitwise-xor z (ashift/mask z -27))
+                                 #x94d049bb133111eb))
+                 (bitwise-xor z (ashift/mask z -31)))))
+            (state (make-u64vector 4)))
+        (u64vector-set! state 0 (next))
+        (u64vector-set! state 1 (next))
+        (u64vector-set! state 2 (next))
+        (u64vector-set! state 3 (next))
+        state))
+
+    ;;; xoshiro warmup
+
+    ;; Returns the total number of 1 bits in *state*'s elements.
+    (define (xoshiro-state-bit-count state)
+      (u64vector-fold (lambda (s k) (+ s (bit-count k)))
+                      0
+                      state))
+
+    ;; True if the binary representation of *state* has an
+    ;; approximately even distribution of 1s and 0s.
+    (define (xoshiro-state-scrambled? state)
+      (let ((ratio (/ (xoshiro-state-bit-count state)
+                      (* state-number-of-bytes 8))))
+        (< 0.48 ratio 0.52)))
+
+    ;; Run at least this many warmup cycles.
+    (define minimum-warmup-cycles 8)
+
+    ;; Give up and signal an initialization error if a scrambled
+    ;; xoshiro state can't be obtained after this number of warmup
+    ;; cycles.
+    (define maximum-warmup-cycles 1024)
+
+    (define (random-port-warmup! port)
+      (letrec*
+       ((c 0)
+        (warmup!
+         (lambda ()
+           (cond ((and (>= c minimum-warmup-cycles)
+                       (xoshiro-state-scrambled?
+                        (random-port-state port))))
+                 ((>= c maximum-warmup-cycles)
+                  (random-port-initialization-error))
+                 (else
+                  (set! c (+ c 1))
+                  (read-u8 port)
+                  (warmup!))))))
+        (warmup!)
+        port))
 
     (define (make-xoshiro-random-port init)
       (make <random-port> init xoshiro-bytes!))
@@ -93,26 +156,18 @@
         (()
          (call-with-port (r:make-random-port) make-random-port))
         ((initializer)
-         (let ((init
-                (cond ((input-port? initializer)
-                       (make-state-from-port initializer))
-                      ((bytevector? initializer)
-                       (make-state-from-bytevector initializer))
-                      (else
-                       (error "make-random-port: invalid initializer"
-                              initializer)))))
-           (make-xoshiro-random-port init)))))
-
-    ;; Get the state from *xport* and convert it to a bytevector.
-    (define (random-port-state xport)
-      (let ((state (random-port-raw-state xport))
-            (bvec (make-bytevector state-number-of-bytes)))
-        (do ((i 0 (+ i 1))
-             (k 0 (+ k 8)))
-            ((= i 4) bvec)
-          (bytevector-u64-native-set! bvec
-                                      k
-                                      (u64vector-ref state i)))))
+         (let* ((init
+                 (cond ((input-port? initializer)
+                        (make-state-from-port initializer))
+                       ((xoshiro-state? initializer)
+                        (u64vector-copy initializer))
+                       (else
+                        (error "make-random-port: invalid initializer"
+                               initializer))))
+                (port (make-xoshiro-random-port init)))
+           (unless (xoshiro-state? initializer)
+             (random-port-warmup! port))
+           port))))
 
     ;;; Gauche virtual port type
 
@@ -129,7 +184,7 @@
     ;; since a method would have access to the port object itself.
 
     (define-class <random-port> (<virtual-input-port>)
-      ((state :getter random-port-raw-state)))
+      ((state :getter random-port-state)))
 
     (define-method initialize ((self <random-port>) initargs)
       (let ((state (car initargs))
