@@ -183,13 +183,13 @@
 
     <h3>Why ports?</h3>
 
-    <p>Input ports have been in the Scheme Reports since the early
-      days (the <a href="#r2rs">RRRS</a>); thus they fit easily into existing programs,
-      and they come with a wealth of standard inspection
-      procedures (<code>u8-ready?</code>, etc.).  In contrast, an
-      opaque type like SRFI 27's random-source needs a fair amount of
-      wheel-reinvention — procedures like the utterly elementary
-      <code>read-u8</code> have to be specified anew.</p>
+    <p>Input ports have been in the Scheme Reports since the early days
+      (the <a href="#r2rs">RRRS</a>); thus they fit easily into
+      existing programs, and they come with a wealth of standard
+      inspection procedures (<code>u8-ready?</code>, etc.).  In
+      contrast, an opaque type like SRFI 27's random-source needs a
+      fair amount of wheel-reinvention — procedures like the utterly
+      elementary <code>read-u8</code> have to be specified anew.</p>
 
     <p>SRFI 194's generator-based
       interface is another option.
@@ -291,18 +291,19 @@
         prefix provide randomized random-number ports.</p>
 
       <p>Both the <code>randomized</code> and <code>determinized</code>
-        libraries must export the <code>make-random-port</code> constructor.
-        <code>determinized</code> libraries must provide an
-        <a href="#determinized-interface">additional interface</a> for
-        creating random ports with predetermined initial
+        libraries must export the <code>make-random-port</code>
+        constructor.  <code>determinized</code> libraries must provide
+        an <a href="#determinized-interface">additional interface</a>
+        for creating random ports with predetermined initial
         states.</p>
 
       <h4 id="additional-libraries">Additional libraries</h4>
 
       <p>Implementations are encouraged to provide additional libraries
-        (e.g. for different pseudorandom generation algorithms) under the
-        <code>(srfi 271 determinized)</code> “namespace”.  If they do, they must ensure
-        that each library follows the protocol detailed above.
+        (e.g.  for different pseudorandom generation algorithms) under
+        the <code>(srfi 271 determinized)</code> “namespace”.  If they
+        do, they must ensure that each library follows the protocol
+        detailed above.
         <a href="#example-determinized-library-names">A list of example
         library names is provided below.</a></p>
 
@@ -380,8 +381,8 @@
               initialization by such a sequence.</p>
           </li>
           <li>
-            <p>If <var>initializer</var> is neither a random-port state nor a
-            binary input port, then the effect is undefined.</p>
+            <p>If <var>initializer</var> is neither a random-port state
+            nor a binary input port, then the effect is undefined.</p>
           </li>
         </ul>
 
