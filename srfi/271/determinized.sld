@@ -2,7 +2,9 @@
 ;;; SPDX-License-Identifier: MIT
 (define-library (srfi 271 determinized)
   (export make-random-port
+          random-port?
           random-port-state
+          random-port-state?
           random-state=?
           random-port-initialization-error?
           )

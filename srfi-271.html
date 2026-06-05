@@ -424,11 +424,42 @@
             initial state is the same as <var>rport</var>’s state.</p>
         </div>
 
+        <p><code>(random-port? <var>obj</var>)</code> → boolean</p>
+
+        <p>Returns <code>#t</code> if <var>obj</var> is a random port
+          in the sense that it can be safely passed to procedures,
+          exported by the same library, which accept a
+          <var>random-port</var> argument.
+          Returns <code>#f</code> otherwise.</p>
+
+        <p>Rationale: <code>random-port?</code> may be used to “guard”
+          calls to procedures like <code>random-port-state</code> so as
+          to avoid the undefined behavior associated with ill-typed
+          procedure arguments.</p>
+
+        <p>The value of the <code>random-port?</code> procedure exported
+          by one random-port library when applied to a random port from
+          a different library is unspecified.</p>
+
+        <p>Rationale: Some implementations may introduce a
+          type of random ports which encompasses all of the ports
+          created by <code>(srfi 271)</code> libraries.  Others may
+          choose to make each library’s port type disjoint from all
+          other types.  The specification of <code>random-port?</code>
+          is meant to allow both approaches.</p>
+
         <p><code>(random-port-state <var>random-port</var>)</code> →
           state</p>
 
         <p>Returns an immutable random-state object representing the
           current state of <var>random-port</var>.</p>
+
+        <p><code>(random-port-state? <var>obj</var>)</code> →
+          boolean</p>
+
+        <p>Returns <code>#t</code> if <var>obj</var> is a valid
+          random-port state in the context of the exporting library.
+          Returns <code>#f</code> otherwise.</p>
 
         <p id="random-state-equalp"><code>(random-state=?
           <var>state<sub>1</sub></var> <var>state<sub>2</sub></var>

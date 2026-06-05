@@ -2,7 +2,9 @@
 ;;; SPDX-License-Identifier: MIT
 (define-library (srfi 271 determinized xoshiro256++)
   (export make-random-port
+          random-port?
           random-port-state
+          random-port-state?
           random-state=?
           random-port-initialization-error?
           )
@@ -76,7 +78,7 @@
 
     ;;; xoshiro state manipulation
 
-    (define (xoshiro-state? x)
+    (define (random-port-state? x)
       (and (u64vector? x)
            (= 4 (u64vector-length x))
            (not (u64vector-every zero? x))))
@@ -113,7 +115,7 @@
     (define (random-state=? state1 state2 . rest-states)
       (let ((check-state
              (lambda (x)
-               (unless (xoshiro-state? x)
+               (unless (random-port-state? x)
                  (error "invalid argument: not a random-port state"
                         x)))))
         (check-state state1)
@@ -172,13 +174,13 @@
          (let* ((init
                  (cond ((input-port? initializer)
                         (make-state-from-port initializer))
-                       ((xoshiro-state? initializer)
+                       ((random-port-state? initializer)
                         (u64vector-copy initializer))
                        (else
                         (error "make-random-port: invalid initializer"
                                initializer))))
                 (port (make-xoshiro-random-port init)))
-           (unless (xoshiro-state? initializer)
+           (unless (random-port-state? initializer)
              (random-port-warmup! port))
            port))))
 
@@ -198,6 +200,9 @@
 
     (define-class <random-port> (<virtual-input-port>)
       ((state :getter random-port-state)))
+
+    (define (random-port? x)
+      (is-a? x <random-port>))
 
     (define-method initialize ((self <random-port>) initargs)
       (let ((state (car initargs))

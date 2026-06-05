@@ -62,6 +62,9 @@
   (let ((p1 (d:make-random-port)))
     (d:make-random-port p1)))
 
+(test-assert "random-port?"
+  (call-with-port (d:make-random-port) d:random-port?))
+
 (test-assert "random-port-initialization-error?"
   (guard (con
            ((d:random-port-initialization-error? con) #t)
@@ -69,6 +72,11 @@
     (call-with-port
      (open-input-bytevector '#u8())
      d:make-random-port)))
+
+(test-assert "random-port-state?"
+  (call-with-port (d:make-random-port)
+                  (lambda (p)
+                    (d:random-port-state? (d:random-port-state p)))))
 
 (test-assert "det. ports with equal states give same initial bytes"
   (let* ((p1 (d:make-random-port))
