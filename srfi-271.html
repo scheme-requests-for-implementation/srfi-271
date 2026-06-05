@@ -160,8 +160,8 @@
       semi-opaque objects (i.e. objects of unspecified type with
       external representations).
       Whereas SRFI 27 allows the user to
-      get or set the state of any source, however, this SRFI only
-      allows determinized random ports to be so manipulated,
+      get the state of any source, however, this SRFI only
+      exposes the states of determinized random ports,
       since the states of randomized ports cannot in general
       be represented by Scheme values.  (Consider a random port
       backed by a hardware random-number generator, for example.)
