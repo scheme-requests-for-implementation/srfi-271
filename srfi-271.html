@@ -451,8 +451,10 @@
         <p><code>(random-port-state <var>random-port</var>)</code> →
           state</p>
 
-        <p>Returns an immutable random-state object representing the
-          current state of <var>random-port</var>.</p>
+        <p>Returns a random-port state representing the state of
+          <var>random-port</var>.  If the value returned by
+          <code>random-port-state</code> is mutated, the behavior is
+          undefined.</p>
 
         <p><code>(random-port-state? <var>obj</var>)</code> →
           boolean</p>
