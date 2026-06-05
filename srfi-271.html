@@ -166,7 +166,7 @@
       be represented by Scheme values.  (Consider a random port
       backed by a hardware random-number generator, for example.)
       Random-port states can also be compared for equality with
-      <code>random-state=?</code>, a feature missing from SRFI 27.</p>
+      <code>random-port-state=?</code>, a feature missing from SRFI 27.</p>
 
     <p>Random ports are seeded only when they are created.  The
       <code>make-random-port</code> constructor accepts an optional state
@@ -244,7 +244,7 @@
         deterministic generation algorithm.  Two determinized random
         ports from the same library and with the same states (in the
         sense of
-        <a href="#random-state-equalp"><code>random-port-state=?</code></a>)
+        <a href="#random-port-state-equalp"><code>random-port-state=?</code></a>)
         must produce the same sequence of pseudorandom numbers.</p>
 
       <p>A <dfn>random-port state</dfn> is an object representing
@@ -256,7 +256,7 @@
         or read using the <code>read</code> procedure, and subsequently
         written out using the <code>write</code> procedure, will read
         back in as the same state in the sense of
-        <a href="#random-state-equalp"><code>random-state=?</code></a>.
+        <a href="#random-port-state-equalp"><code>random-port-state=?</code></a>.
         (cf. R7RS §6.5.)</p>
     </div>
 
@@ -466,7 +466,7 @@
           random-port state in the context of the exporting library.
           Returns <code>#f</code> otherwise.</p>
 
-        <p id="random-state-equalp"><code>(random-state=?
+        <p id="random-port-state-equalp"><code>(random-port-state=?
           <var>state<sub>1</sub></var> <var>state<sub>2</sub></var>
           <var>state<sub>3</sub></var> …)</code> → boolean</p>
 
