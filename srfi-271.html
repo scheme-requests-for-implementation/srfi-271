@@ -245,10 +245,10 @@
         ports with the same states must produce the same sequence of
         pseudorandom numbers.</p>
 
-      <p>A <dfn>random state</dfn> is an object representing
+      <p>A <dfn>random-port state</dfn> is an object representing
         the state of a random port (or, more precisely, of the
         random-number generator embodied by a random port).  A type
-        of random states must have an external representation and must
+        of random-port states must have an external representation and must
         support <code>write</code>/<code>read</code> invariance: a random
         state that has been returned as part of a literal expression,
         or read using the <code>read</code> procedure, and subsequently
@@ -353,7 +353,7 @@
 
         <ul>
           <li>
-            <p>If <var>initializer</var> is a random state object, then
+            <p>If <var>initializer</var> is a random-port state, then
               the initial state of the random port returned by
               <code>make-random-port</code> is the same as that
               represented by <var>initializer</var>.</p>
@@ -362,7 +362,7 @@
             <p>If <var>initializer</var> is a binary input port, then
               the returned port’s state is constructed from data read
               from <var>initializer</var>.  The exact process of
-              constructing a random state from arbitrary data is
+              constructing a random-port state from arbitrary data is
               unspecified, but if two <var>initializer</var> ports
               produce the same sequences, then the random ports
               initialized from them must have the same initial
@@ -380,7 +380,7 @@
               initialization by such a sequence.</p>
           </li>
           <li>
-            <p>If <var>initializer</var> is neither a random state nor a
+            <p>If <var>initializer</var> is neither a random-port state nor a
             binary input port, then the effect is undefined.</p>
           </li>
         </ul>
