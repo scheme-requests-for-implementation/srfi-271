@@ -251,7 +251,7 @@
         the state of a random port (or, more precisely, of the
         random-number generator embodied by a random port).  A type
         of random-port states must have an external representation and must
-        support <code>write</code>/<code>read</code> invariance: a random
+        support <code>write</code>/<code>read</code> invariance: a random-port
         state that has been returned as part of a literal expression,
         or read using the <code>read</code> procedure, and subsequently
         written out using the <code>write</code> procedure, will read
@@ -471,7 +471,7 @@
           <var>state<sub>3</sub></var> …)</code> → boolean</p>
 
         <p>Returns <code>#t</code> if all the <var>state</var>s are
-          equal, and <code>#f</code> otherwise.  Random states are
+          equal, and <code>#f</code> otherwise.  Random-port states are
           considered to be equal if random ports initialized to them
           produce the same sequence.</p>
 
