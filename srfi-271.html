@@ -369,7 +369,10 @@
               unspecified, but if two <var>initializer</var> ports
               produce the same sequences, then the random ports
               initialized from them must have the same initial
-              states.</p>
+              states (in the sense of
+              <a href="#random-port-state-equalp"><code>random-port-state=?</code></a>).
+            </p>
+
             <p>An error satisfying
               <code>random-port-initialization-error?</code> is
               signaled if <code>make-random-port</code> cannot obtain
