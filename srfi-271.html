@@ -79,8 +79,7 @@
               </li>
             </ol>
           <li>
-            <a href="#example-determinized-library-names">Example
-              <code>determinized</code> library names</a>
+            <a href="#example-library-names">Example library names</a>
           </li>
         </ol>
       </li>
@@ -306,7 +305,7 @@
         the <code>(srfi 271 determinized)</code> “namespace”.  If they
         do, they must ensure that each library follows the protocol
         detailed above.
-        <a href="#example-determinized-library-names">A list of example
+        <a href="#example-library-names">A list of example
         library names is provided below.</a></p>
 
       <h4 id="discussion">Discussion</h4>
@@ -493,14 +492,37 @@
       </div>
     </div>
 
-    <div id="example-determinized-library-names">
-      <h3>Example <code>determinized</code> library names</h3>
+    <div id="example-library-names">
+      <h3>Example library names</h3>
 
       <p><em>This section is informational.</em></p>
 
       <p>Names are based on
         <a href="https://prng.di.unimi.it">Sebastiano Vigna’s PRNG
         page</a> and Wikipedia.</p>
+
+      <h4><code>randomized</code> libraries</h4>
+
+      <dl>
+        <dt>
+          <code>(srfi 271 randomized urandom)</code>
+        </dt>
+        <dd>
+          <p>Library for POSIX systems which draws random data from
+            the <code>/dev/urandom</code> file.</p>
+        </dd>
+
+        <dt><code>(srfi 271 randomized chacha8)</code></dt>
+        <dt><code>(srfi 271 randomized chacha12)</code></dt>
+        <dt><code>(srfi 271 randomized chacha20)</code></dt>
+        <dd>
+          <p>Libraries using
+            <a href="https://en.wikipedia.org/wiki/Chacha20#ChaCha_variant">ChaCha</a>
+            stream ciphers.</p>
+        </dd>
+      </dl>
+
+      <h4><code>determinized</code> libraries</h4>
 
       <dl>
         <dt>
