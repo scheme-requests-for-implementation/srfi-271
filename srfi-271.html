@@ -440,9 +440,10 @@
           to avoid the undefined behavior associated with ill-typed
           procedure arguments.</p>
 
-        <p>The value of the <code>random-port?</code> procedure exported
-          by one random-port library when applied to a random port from
-          a different library is unspecified.</p>
+        <p>If the <code>random-port?</code> procedure exported
+          by one random-port library is applied to a random port
+          from another library, the return value is unspecified but
+          will always be <code>#t</code> or <code>#f</code>.</p>
 
         <p>Rationale: Some implementations may introduce a
           type of random ports which encompasses all of the ports
@@ -465,6 +466,11 @@
         <p>Returns <code>#t</code> if <var>obj</var> is a valid
           random-port state in the context of the exporting library.
           Returns <code>#f</code> otherwise.</p>
+
+        <p>If the <code>random-port-state?</code> procedure exported
+          by one random-port library is applied to a random-port state
+          from another library, the return value is unspecified but
+          will always be <code>#t</code> or <code>#f</code>.</p>
 
         <p id="random-port-state-equalp"><code>(random-port-state=?
           <var>state<sub>1</sub></var> <var>state<sub>2</sub></var>
