@@ -359,159 +359,160 @@
           the <code>(srfi 271 determinized)</code> prefix.</p>
 
         <div class="proc-spec">
-        <p><code>(make-random-port [initializer])</code> →
-          binary-input-port</p>
+          <p><code>(make-random-port [initializer])</code> →
+            binary-input-port</p>
 
-        <p>As above, but the optional <var>initializer</var> argument
-          is used as follows:</p>
+          <p>As above, but the optional <var>initializer</var> argument
+            is used as follows:</p>
 
-        <ul>
-          <li>
-            <p>If <var>initializer</var> is a random-port state, then
-              the initial state of the random port returned by
-              <code>make-random-port</code> is the same as that
-              represented by <var>initializer</var>.</p>
-          </li>
-          <li>
-            <p>If <var>initializer</var> is a binary input port, then
-              the returned port’s state is constructed from data read
-              from <var>initializer</var>.  The exact process of
-              constructing a random-port state from arbitrary data is
-              unspecified, but if two <var>initializer</var> ports
-              produce the same sequence, then the random ports
-              initialized from them must have the same initial
-              states (in the sense of
-              <a href="#random-port-state-equalp"><code>random-port-state=?</code></a>).
-            </p>
-
-            <p>An error satisfying
-              <code>random-port-initialization-error?</code> is
-              signaled if <code>make-random-port</code> cannot obtain
-              enough data from <var>initializer</var> to initialize a
-              random port state, or if the data obtained is unsuitable
-              for initializing the implementation’s pseudorandom
-              number
-              generator.  Implementations should allow initialization
-              from arbitrary infinite sequences.  An exception is the
-              all-zeros sequence (0, 0, …), which is known to cause
-              problems for many algorithms. Implementations may allow
-              initialization by the all-zeros sequence.</p>
-          </li>
-          <li>
-            <p>If <var>initializer</var> is neither a random-port state
-            nor a binary input port, then the behavior is undefined.</p>
-          </li>
-        </ul>
-
-        <p>Calling <code>make-random-port</code> without an
-          <var>initializer</var> is equivalent to</p>
-
-        <pre><code>(call-with-port (randomized:make-random-port)
-                make-random-port)</code></pre>
-
-        <p>where <code>randomized:make-random-port</code> denotes the
-          <code>make-random-port</code> procedure exported by
-          <code>(srfi 271 randomized)</code>.</p>
-
-        <div class="note">
-          <h5>Note</h5>
-
-          <p>The difference between initializing a random port with a
-            random port and initializing it with a random-port
-            <em>state</em> is a little subtle.  The following examples
-            are not equivalent:</p>
-
-          <ol>
+          <ul>
             <li>
-              <p><code>(make-random-port rport)</code></p>
+              <p>If <var>initializer</var> is a random-port state, then
+                the initial state of the random port returned by
+                <code>make-random-port</code> is the same as that
+                represented by <var>initializer</var>.</p>
             </li>
             <li>
-              <p>
-                <code>(make-random-port (random-port-state rport))</code>
+              <p>If <var>initializer</var> is a binary input port, then
+                the returned port’s state is constructed from data read
+                from <var>initializer</var>.  The exact process of
+                constructing a random-port state from arbitrary data is
+                unspecified, but if two <var>initializer</var> ports
+                produce the same sequence, then the random ports
+                initialized from them must have the same initial
+                states (in the sense of
+                <a href="#random-port-state-equalp"><code>random-port-state=?</code></a>).
               </p>
+
+              <p>An error satisfying
+                <code>random-port-initialization-error?</code> is
+                signaled if <code>make-random-port</code> cannot obtain
+                enough data from <var>initializer</var> to initialize a
+                random port state, or if the data obtained is unsuitable
+                for initializing the implementation’s pseudorandom
+                number
+                generator.  Implementations should allow initialization
+                from arbitrary infinite sequences.  An exception is the
+                all-zeros sequence (0, 0, …), which is known to cause
+                problems for many algorithms. Implementations may allow
+                initialization by the all-zeros sequence.</p>
             </li>
-          </ol>
+            <li>
+              <p>If <var>initializer</var> is neither a random-port state
+              nor a binary input port, then the behavior is undefined.</p>
+            </li>
+          </ul>
 
-          <p>The first example returns a port whose initial state is
-            constructed from (random) data read from the random port
-            <var>rport</var>, while the second returns a port whose
-            initial state is the same as <var>rport</var>’s state.</p>
-        </div>
-        </div>
+          <p>Calling <code>make-random-port</code> without an
+            <var>initializer</var> is equivalent to</p>
 
-        <div class="proc-spec">
-        <p><code>(random-port? <var>obj</var>)</code> → boolean</p>
+          <pre><code>(call-with-port (randomized:make-random-port)
+                  make-random-port)</code></pre>
 
-        <p>Returns <code>#t</code> if <var>obj</var> is a random port
-          in the sense that it can be safely passed to procedures from
-          the same library which accept a
-          <var>random-port</var> argument.
-          Returns <code>#f</code> otherwise.</p>
+          <p>where <code>randomized:make-random-port</code> denotes the
+            <code>make-random-port</code> procedure exported by
+            <code>(srfi 271 randomized)</code>.</p>
 
-        <p>Rationale: <code>random-port?</code> may be used to “guard”
-          calls to procedures like <code>random-port-state</code> so as
-          to avoid the undefined behavior associated with ill-typed
-          procedure arguments.</p>
+          <div class="note">
+            <h5>Note</h5>
 
-        <p>If the <code>random-port?</code> procedure exported
-          by one random-port library is applied to a random port
-          from another library, the return value is unspecified but
-          will always be <code>#t</code> or <code>#f</code>.</p>
+            <p>The difference between initializing a random port with a
+              random port and initializing it with a random-port
+              <em>state</em> is a little subtle.  The following examples
+              are not equivalent:</p>
 
-        <p>Rationale: Some implementations may introduce a
-          type of random ports which encompasses all of the ports
-          created by <code>(srfi 271)</code> libraries.  Others may
-          choose to make each library’s port type disjoint from all
-          other types.  The specification of <code>random-port?</code>
-          is meant to allow both approaches.</p>
-        </div>
+            <ol>
+              <li>
+                <p><code>(make-random-port rport)</code></p>
+              </li>
+              <li>
+                <p>
+                  <code>(make-random-port
+                  (random-port-state rport))</code>
+                </p>
+              </li>
+            </ol>
 
-        <div class="proc-spec">
-        <p><code>(random-port-state <var>random-port</var>)</code> →
-          state</p>
-
-        <p>Returns a random-port state representing the state of
-          <var>random-port</var>.  If the value returned by
-          <code>random-port-state</code> is mutated, the behavior is
-          undefined.</p>
+            <p>The first example returns a port whose initial state is
+              constructed from (random) data read from the random port
+              <var>rport</var>, while the second returns a port whose
+              initial state is the same as <var>rport</var>’s state.</p>
+          </div>
         </div>
 
         <div class="proc-spec">
-        <p><code>(random-port-state? <var>obj</var>)</code> →
-          boolean</p>
+          <p><code>(random-port? <var>obj</var>)</code> → boolean</p>
 
-        <p>Returns <code>#t</code> if <var>obj</var> is a valid
-          random-port state in the context of the exporting library.
-          Returns <code>#f</code> otherwise.</p>
+          <p>Returns <code>#t</code> if <var>obj</var> is a random port
+            in the sense that it can be safely passed to procedures from
+            the same library which accept a
+            <var>random-port</var> argument.
+            Returns <code>#f</code> otherwise.</p>
 
-        <p>If the <code>random-port-state?</code> procedure exported
-          by one random-port library is applied to a random-port state
-          from another library, the return value is unspecified but
-          will always be <code>#t</code> or <code>#f</code>.</p>
+          <p>Rationale: <code>random-port?</code> may be used to “guard”
+            calls to procedures like <code>random-port-state</code> so as
+            to avoid the undefined behavior associated with ill-typed
+            procedure arguments.</p>
+
+          <p>If the <code>random-port?</code> procedure exported
+            by one random-port library is applied to a random port
+            from another library, the return value is unspecified but
+            will always be <code>#t</code> or <code>#f</code>.</p>
+
+          <p>Rationale: Some implementations may introduce a
+            type of random ports which encompasses all of the ports
+            created by <code>(srfi 271)</code> libraries.  Others may
+            choose to make each library’s port type disjoint from all
+            other types.  The specification of <code>random-port?</code>
+            is meant to allow both approaches.</p>
         </div>
 
         <div class="proc-spec">
-        <p id="random-port-state-equalp"><code>(random-port-state=?
-          <var>state<sub>1</sub></var> <var>state<sub>2</sub></var>
-          <var>state<sub>3</sub></var> …)</code> → boolean</p>
+          <p><code>(random-port-state <var>random-port</var>)</code> →
+            state</p>
 
-        <p>Returns <code>#t</code> if all the <var>state</var>s are
-          equal, and <code>#f</code> otherwise.  If
-          <code>random-port-state=?</code> is true when applied to two
-          states <var>s<sub>1</sub></var> and <var>s<sub>2</sub></var>,
-          then random ports returned by
-          <code>(make-random-port <var>s<sub>1</sub></var>)</code> and
-          <code>(make-random-port <var>s<sub>2</sub></var>)</code> must
-          produce the same byte sequence.</p>
+          <p>Returns a random-port state representing the state of
+            <var>random-port</var>.  If the value returned by
+            <code>random-port-state</code> is mutated, the behavior is
+            undefined.</p>
         </div>
 
         <div class="proc-spec">
-        <p><code>(random-port-initialization-error? <var>obj</var>)</code>
-          → boolean</p>
+          <p><code>(random-port-state? <var>obj</var>)</code> →
+            boolean</p>
 
-        <p>Returns <code>#t</code> if <var>obj</var> is an object signaled
-          by <code>make-random-port</code> in the circumstances described
-          above, and <code>#f</code> otherwise.</p>
+          <p>Returns <code>#t</code> if <var>obj</var> is a valid
+            random-port state in the context of the exporting library.
+            Returns <code>#f</code> otherwise.</p>
+
+          <p>If the <code>random-port-state?</code> procedure exported
+            by one random-port library is applied to a random-port state
+            from another library, the return value is unspecified but
+            will always be <code>#t</code> or <code>#f</code>.</p>
+        </div>
+
+        <div class="proc-spec">
+          <p id="random-port-state-equalp"><code>(random-port-state=?
+            <var>state<sub>1</sub></var> <var>state<sub>2</sub></var>
+            <var>state<sub>3</sub></var> …)</code> → boolean</p>
+
+          <p>Returns <code>#t</code> if all the <var>state</var>s are
+            equal, and <code>#f</code> otherwise.  If
+            <code>random-port-state=?</code> is true when applied to two
+            states <var>s<sub>1</sub></var> and <var>s<sub>2</sub></var>,
+            then random ports returned by
+            <code>(make-random-port <var>s<sub>1</sub></var>)</code> and
+            <code>(make-random-port <var>s<sub>2</sub></var>)</code> must
+            produce the same byte sequence.</p>
+        </div>
+
+        <div class="proc-spec">
+          <p><code>(random-port-initialization-error?
+            <var>obj</var>)</code> → boolean</p>
+
+          <p>Returns <code>#t</code> if <var>obj</var> is an object
+            signaled by <code>make-random-port</code> in the circumstances
+            described above, and <code>#f</code> otherwise.</p>
         </div>
       </div>
     </div>
