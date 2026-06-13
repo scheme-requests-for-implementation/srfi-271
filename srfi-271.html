@@ -473,9 +473,13 @@
           <var>state<sub>3</sub></var> …)</code> → boolean</p>
 
         <p>Returns <code>#t</code> if all the <var>state</var>s are
-          equal, and <code>#f</code> otherwise.</p>
-
-        <!-- TODO: Definition of "equal"? -->
+          equal, and <code>#f</code> otherwise.  If
+          <code>random-port-state=?</code> is true when applied to two
+          states <var>s<sub>1</sub></var> and <var>s<sub>2</sub></var>,
+          then random ports returned by
+          <code>(make-random-port <var>s<sub>1</sub></var>)</code> and
+          <code>(make-random-port <var>s<sub>2</sub></var>)</code> must
+          produce the same byte sequences.</p>
 
         <p>Rationale: Some types (like
           <a href="https://srfi.schemers.org/srfi-4/">SRFI 4</a>
