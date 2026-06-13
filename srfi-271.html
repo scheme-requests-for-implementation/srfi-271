@@ -15,6 +15,11 @@
           padding-left: 1em;
           padding-right: 1em;
       }
+
+      div.proc-spec {
+          margin-top: 30px;
+          margin-bottom: 30px;
+      }
       -->
     </style>
     <link href="/favicon.png" rel="icon" sizes="192x192" type="image/png">
@@ -341,9 +346,11 @@
       <p>Each library with the <code>(srfi 271)</code> prefix exports
         a <code>make-random-port</code> procedure.</p>
 
+      <div class="proc-spec">
       <p><code>(make-random-port)</code> → binary-input-port</p>
 
       <p>Returns a new random port.</p>
+      </div>
 
       <div id="determinized-interface">
         <h4><code>determinized</code> libraries</h4>
@@ -351,6 +358,7 @@
         <p>The following procedures are exported by all libraries with
           the <code>(srfi 271 determinized)</code> prefix.</p>
 
+        <div class="proc-spec">
         <p><code>(make-random-port [initializer])</code> →
           binary-input-port</p>
 
@@ -429,7 +437,9 @@
             <var>rport</var>, while the second returns a port whose
             initial state is the same as <var>rport</var>’s state.</p>
         </div>
+        </div>
 
+        <div class="proc-spec">
         <p><code>(random-port? <var>obj</var>)</code> → boolean</p>
 
         <p>Returns <code>#t</code> if <var>obj</var> is a random port
@@ -454,7 +464,9 @@
           choose to make each library’s port type disjoint from all
           other types.  The specification of <code>random-port?</code>
           is meant to allow both approaches.</p>
+        </div>
 
+        <div class="proc-spec">
         <p><code>(random-port-state <var>random-port</var>)</code> →
           state</p>
 
@@ -462,7 +474,9 @@
           <var>random-port</var>.  If the value returned by
           <code>random-port-state</code> is mutated, the behavior is
           undefined.</p>
+        </div>
 
+        <div class="proc-spec">
         <p><code>(random-port-state? <var>obj</var>)</code> →
           boolean</p>
 
@@ -474,7 +488,9 @@
           by one random-port library is applied to a random-port state
           from another library, the return value is unspecified but
           will always be <code>#t</code> or <code>#f</code>.</p>
+        </div>
 
+        <div class="proc-spec">
         <p id="random-port-state-equalp"><code>(random-port-state=?
           <var>state<sub>1</sub></var> <var>state<sub>2</sub></var>
           <var>state<sub>3</sub></var> …)</code> → boolean</p>
@@ -487,13 +503,16 @@
           <code>(make-random-port <var>s<sub>1</sub></var>)</code> and
           <code>(make-random-port <var>s<sub>2</sub></var>)</code> must
           produce the same byte sequence.</p>
+        </div>
 
+        <div class="proc-spec">
         <p><code>(random-port-initialization-error? <var>obj</var>)</code>
           → boolean</p>
 
         <p>Returns <code>#t</code> if <var>obj</var> is an object signaled
           by <code>make-random-port</code> in the circumstances described
           above, and <code>#f</code> otherwise.</p>
+        </div>
       </div>
     </div>
 
