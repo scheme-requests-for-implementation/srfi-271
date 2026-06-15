@@ -603,33 +603,29 @@
 
     <h3>A higher-level interface</h3>
 
-    <p>Since the libraries specified by this SRFI do not provide
+    <p>Since this SRFI does not provide
       procedures for getting generally useful data types (integers
       within arbitrary ranges, reals, etc.) out of random ports, a
-      higher-level interface will be needed to make random-port
-      programming congenial.  The multi-library design of this SRFI leads
-      to one important consideration in choosing such an interface: it
-      should work with random ports from any library.  Because Scheme lacks
-      a means of parameterizing one library over the exports of another,
-      we need an interface to random ports in general, not just to the
-      ports from, say, <code>(srfi 271 randomized)</code>, if we wish to
+      higher-level interface is needed to make random-port
+      programming congenial.  Such an interface should work with random
+      ports from any SRFI 271 library, to
       avoid multiplying libraries unnecessarily.</p>
 
-    <p>For several reasons, detailed below, SRFI 27 would make a poor
-      high-level interface to random ports.  SRFI 194, while specified in
-      terms of SRFI 27, is a better fit, and it provides more kinds
-      of random-data generators than most programmers will ever need.
-      By wrapping random ports in SRFI 158 generators, however, several
-      useful properties of ports would be lost (see the
+    <p>For reasons detailed below, SRFI 27 would make a poor
+      interface to random ports.  SRFI 194, while specified in
+      terms of SRFI 27, is a better fit, and it provides more
+      random-data generators than most programmers will ever need.
+      Wrapping random ports in SRFI 158 generators, however, would
+      hide several useful properties of input ports (see the
       <a href="#rationale">Rationale</a> for details).  My preference
-      (which may be reified in a future SRFI) is for a library of bland
+      (which may be reified in a future SRFI) is a library of bland
       port-reading procedures, e.g. <code>read-random-integer</code>,
       <code>read-random-real</code>, etc., which would do the (sometimes
-      prickly) job of extracting good-quality random values without
-      hiding the ports providing the raw data.</p>
+      tricky) job of extracting good-quality random values without
+      hiding the ports themselves.</p>
 
     <p>That being said, SRFI 27 remains the best-known random-number
-      interface in Scheme, and it may be desirable to provide both SRFI
+      interface in Scheme, and implementers may want to provide both SRFI
       27 and 271 interfaces.  A discussion of SRFI 27 / 271 compatibility
       issues follows.</p>
 
