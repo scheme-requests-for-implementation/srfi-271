@@ -212,12 +212,20 @@
       ports and generators have all of the same features and compete,
       pointlessly, for control of every I/O domain.</p>
 
-    <p>Back to the point. Some of the standard port operations that
-      are not available for SRFI 158 generators are useful for random
-      ports. For example, some random sources (traditionally, though
-      unfortunately) may block until sufficient entropy is available. With
-      random ports, applying <code>u8-ready?</code> should be enough to
-      alert you of this situation.</p>
+    <p>Back to the point.  Some of the standard port operations that are
+      not available for SRFI 158 generators are useful for random ports.
+      For example, some random sources (traditionally, though
+      unfortunately) may block until sufficient entropy is available.
+      With random ports, applying <code>u8-ready?</code> should be enough
+      to alert you of this situation.  Port positioning (described in
+      R6RS and <a href="https://srfi.schemers.org/srfi-192">SRFI 192</a>)
+      may also be useful when working with random-number generators that
+      allow seeking through their output stream.  Transcoders, another
+      R6RS port feature (also described in
+      <a href="https://srfi.schemers.org/srfi-181">SRFI 181</a>), could
+      be used to make ports that produce random strings.  Programmers
+      will no doubt discover other ways to use standard port features
+      with random ports.</p>
 
 
     <h2 id="specification">Specification</h2>
@@ -678,6 +686,9 @@
       properties of such a source; any inaccuracies in the SRFI’s
       version are my own doing.</p>
 
+    <p>Thanks to Zhu Zihao for pointing out the connection between port
+      positions and seekable random-number generators.</p>
+
     <p>Thanks to the members of the R7RS
       Second Working Group for advice and discussion.</p>
 
@@ -699,6 +710,11 @@
       <cite>Revised Revised Report on Scheme</cite> (RRRS), MIT
       Artificial Intelligence Memo No. 848, August
       1985.</p>
+
+    <p id="r6rs">Michael Sperber, R. Kent Dybvig, Matthew Flatt, &amp;
+      Anton van Straaten, eds., <cite>Revised<sup>6</sub> Report on the
+      Algorithmic Language Scheme</cite> (R6RS), 2007.
+      <a href="https://www.r6rs.org">https://www.r6rs.org</a>.</p>
 
     <p id="r7rs">Alex Shinn, John Cowan, &amp; Arthur A. Gleckler,
       eds., <cite>Revised<sup>7</sup> Report on the Algorithmic Language
@@ -726,6 +742,15 @@
       <cite>SRFI 158: Generators and Accumulators</cite>.
       <a href="https://srfi.schemers.org/srfi-158/">
         https://srfi.schemers.org/srfi-158/</a>, 2017.</p>
+
+    <p id="srfi-181">John Cowan, <cite>SRFI 181: Custom ports
+      (including transcoded ports)</cite>.
+      <a href="https://srfi.schemers.org/srfi-181/">
+        https://srfi.schemers.org/srfi-181/</a>, 2020.</p>
+
+    <p id="srfi-192">John Cowan and Shiro Kawai, <cite>SRFI 192: Port
+      Positioning</cite>. <a href="https://srfi.schemers.org/srfi-192/">
+        https://srfi.schemers.org/srfi-192/</a>, 2020.</p>
 
     <p id="srfi-194">Shiro Kawai, Arvydas Silanskas, Linas Vepštas,
       and John Cowan. <cite>SRFI 194: Random data generators</cite>.
