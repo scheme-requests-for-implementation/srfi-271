@@ -15,6 +15,11 @@
           padding-left: 1em;
           padding-right: 1em;
       }
+
+      div.proc-spec {
+          margin-top: 30px;
+          margin-bottom: 30px;
+      }
       -->
     </style>
     <link href="/favicon.png" rel="icon" sizes="192x192" type="image/png">
@@ -79,8 +84,7 @@
               </li>
             </ol>
           <li>
-            <a href="#example-determinized-library-names">Example
-              <code>determinized</code> library names</a>
+            <a href="#example-library-names">Example library names</a>
           </li>
         </ol>
       </li>
@@ -160,11 +164,14 @@
       semi-opaque objects (i.e. objects of unspecified type with
       external representations).
       Whereas SRFI 27 allows the user to
-      get or set the state of any source, however, this SRFI only
-      allows determinized random ports to be so manipulated,
+      get the state of any source, however, this SRFI only
+      exposes the states of determinized random ports,
       since the states of randomized ports cannot in general
       be represented by Scheme values.  (Consider a random port
       backed by a hardware random-number generator, for example.)
+      Random-port states can also be compared for equality with
+      <code>random-port-state=?</code>, a feature not explicitly
+      provided by SRFI 27.</p>
 
     <p>Random ports are seeded only when they are created.  The
       <code>make-random-port</code> constructor accepts an optional state
@@ -176,18 +183,18 @@
       from other random ports; this eliminates the need for awkward
       initialization procedures like
       <code>random-source-randomize!</code>.  Given a single good-quality
-      randomized port, this makes it easy to create determinzed ports with
+      randomized port, this makes it easy to create determinized ports with
       random initial states.</p>
 
     <h3>Why ports?</h3>
 
-    <p>Input ports have been in the Scheme Reports since the early
-      days (the <a href="#r2rs">RRRS</a>); thus they fit easily into existing programs,
-      and they come with a wealth of standard inspection
-      procedures (<code>u8-ready?</code>, etc.).  In contrast, an
-      opaque type like SRFI 27's random-source needs a fair amount of
-      wheel-reinvention — procedures like the utterly elementary
-      <code>read-u8</code> have to be specified anew.</p>
+    <p>Input ports have been in the Scheme Reports since the early days
+      (the <a href="#r2rs">RRRS</a>); thus they fit easily into
+      existing programs, and they come with a wealth of standard
+      inspection procedures (<code>u8-ready?</code>, etc.).  In
+      contrast, an opaque type like SRFI 27's random-source needs a
+      fair amount of wheel-reinvention — procedures like the utterly
+      elementary <code>read-u8</code> have to be specified anew.</p>
 
     <p>SRFI 194's generator-based
       interface is another option.
@@ -205,12 +212,20 @@
       ports and generators have all of the same features and compete,
       pointlessly, for control of every I/O domain.</p>
 
-    <p>Back to the point. Some of the standard port operations that
-      are not available for SRFI 158 generators are useful for random
-      ports. For example, some random sources (traditionally, though
-      unfortunately) may block until sufficient entropy is available. With
-      random ports, applying <code>u8-ready?</code> should be enough to
-      alert you of this situation.</p>
+    <p>Back to the point.  Some of the standard port operations that are
+      not available for SRFI 158 generators are useful for random ports.
+      For example, some random sources (traditionally, though
+      unfortunately) may block until sufficient entropy is available.
+      With random ports, applying <code>u8-ready?</code> should be enough
+      to alert you of this situation.  Port positioning (described in
+      R6RS and <a href="https://srfi.schemers.org/srfi-192">SRFI 192</a>)
+      may also be useful when working with random-number generators that
+      allow seeking through their output stream.  Transcoders, another
+      R6RS port feature (also described in
+      <a href="https://srfi.schemers.org/srfi-181">SRFI 181</a>), could
+      be used to make ports that produce random strings.  Programmers
+      will no doubt discover other ways to use standard port features
+      with random ports.</p>
 
 
     <h2 id="specification">Specification</h2>
@@ -227,7 +242,7 @@
         random data. Reading from a random port must not produce an
         end-of-file object.</p>
 
-      <p>An <dfn>randomized</dfn> random port should
+      <p>A <dfn>randomized</dfn> random port should
         produce data from either a high-entropy external source
         (e.g. the operating system’s entropy pool or a hardware
         random-number generator) or from a
@@ -239,15 +254,23 @@
 
       <p>A <dfn>determinized</dfn> random port must produce data
         generated by a fully
-        deterministic generation algorithm.  Two determinized random
-        ports with the same states must produce the same sequence of
-        pseudorandom numbers.</p>
+        deterministic algorithm.  Two determinized random
+        ports from the same library and with the same states (in the
+        sense of
+        <a href="#random-port-state-equalp"><code>random-port-state=?</code></a>)
+        must produce the same sequence of pseudorandom numbers.</p>
 
-      <p>A <dfn>random state</dfn> is a semi-opaque object representing
+      <p>A <dfn>random-port state</dfn> is an object representing
         the state of a random port (or, more precisely, of the
-        random-number generator embodied by a random port).  Random
-        states must have an external representation and be comparable
-        with <code>equal?</code>.</p>
+        random-number generator embodied by a random port).  A type
+        of random-port states must have an external representation and must
+        support <code>write</code>/<code>read</code> invariance: a random-port
+        state that has been returned as part of a literal expression,
+        or read using the <code>read</code> procedure, and subsequently
+        written out using the <code>write</code> procedure, will read
+        back in as the same state in the sense of the
+        <a href="#random-port-state-equalp"><code>random-port-state=?</code></a>
+        procedure associated with that state type.</p>
     </div>
 
     <div id="libraries">
@@ -274,28 +297,34 @@
       <p><code>(srfi 271)</code> is simply an alias for
         <code>(srfi 271 randomized)</code>. (Rationale:
         Rushed or incautious programmers who just want random numbers
-        <a href="#riastradh-comments">get the best available.</a>)</p>
+        get those most likely to be of cryptographic quality. See
+        e.g. <a href="#riastradh-comments">Taylor Campbell’s
+        comments</a> on preferable defaults.)</p>
 
       <h4 id="library-protocol">Library protocol</h4>
 
       <p>The <code>(srfi 271 randomized)</code> library and any
         libraries with the <code>(srfi 271 randomized)</code>
-        prefix provide randomized random-number ports.</p>
+        prefix provide randomized random ports.  Similarly,
+        <code>(srfi 271 determinized)</code> and any libraries
+        with the <code>(srfi 271 determinized)</code> prefix provide
+        determinized random ports.</p>
 
       <p>Both the <code>randomized</code> and <code>determinized</code>
-        libraries must export the <code>make-random-port</code> constructor.
-        <code>determinized</code> libraries must provide an
-        <a href="#determinized-interface">additional interface</a> for
-        creating random ports with predetermined initial
+        libraries must export the <code>make-random-port</code>
+        constructor.  <code>determinized</code> libraries must provide
+        an <a href="#determinized-interface">additional interface</a>
+        for creating random ports with predetermined initial
         states.</p>
 
       <h4 id="additional-libraries">Additional libraries</h4>
 
       <p>Implementations are encouraged to provide additional libraries
-        (e.g. for different pseudorandom generation algorithms) under the
-        <code>(srfi 271 determinized)</code> “namespace”.  If they do, they must ensure
-        that each library follows the protocol detailed above.
-        <a href="#example-determinized-library-names">A list of example
+        (e.g. for different pseudorandom generation algorithms) under
+        the <code>(srfi 271 determinized)</code> “namespace”.  If they
+        do, they must ensure that each library follows the protocol
+        detailed above.
+        <a href="#example-library-names">A list of example
         library names is provided below.</a></p>
 
       <h4 id="discussion">Discussion</h4>
@@ -305,7 +334,7 @@
       <p>Each library is tied to a specific generation mechanism;
         import the library that provides the one you want. There is no
         other mechanism in this specification for choosing between
-        random-number-generation algorithms.</p>
+        random-number generators.</p>
 
       <p>No means is provided here for getting floats, arbitrary integers,
         or other data out of random ports.  This is left to
@@ -324,12 +353,14 @@
 
       <h4 id="all-libraries">All libraries</h4>
 
-      <p>A <code>make-random-port</code> procedure is exported by each
-        library with the <code>(srfi 271)</code> prefix.</p>
+      <p>Each library with the <code>(srfi 271)</code> prefix exports
+        a <code>make-random-port</code> procedure.</p>
 
+      <div class="proc-spec">
       <p><code>(make-random-port)</code> → binary-input-port</p>
 
       <p>Returns a new random port.</p>
+      </div>
 
       <div id="determinized-interface">
         <h4><code>determinized</code> libraries</h4>
@@ -337,115 +368,197 @@
         <p>The following procedures are exported by all libraries with
           the <code>(srfi 271 determinized)</code> prefix.</p>
 
-        <p><code>(make-random-port [initializer])</code> →
-          binary-input-port</p>
+        <div class="proc-spec">
+          <p><code>(make-random-port [initializer])</code> →
+            binary-input-port</p>
 
-        <p>As above, but the optional <var>initializer</var> argument
-          is used as follows:</p>
+          <p>As above, but the optional <var>initializer</var> argument
+            is used as follows:</p>
 
-        <ul>
-          <li>
-            <p>If <var>initializer</var> is a random state object, then
-              the initial state of the random port returned by
-              <code>make-random-port</code> is the same as that
-              represented by <var>initializer</var>.</p>
-          </li>
-          <li>
-            <p>If <var>initializer</var> is a binary input port, then
-              the returned port’s state is constructed from data read
-              from <var>initializer</var>.  The exact process of
-              constructing a random state from arbitrary data is
-              unspecified, but if two <var>initializer</var> ports
-              produce the same sequences, then the random ports
-              initialized from them should have the same initial
-              states.</p>
-            <p>An error satisfying
-              <code>random-port-initialization-error?</code> is
-              signaled if <code>make-random-port</code> cannot obtain
-              enough data from <var>initializer</var> to initialize a
-              random port state, or if the data obtained is unsuitable
-              for initializing the implementation’s pseudorandom
-              generator.  Implementations should allow initialization
-              from arbitrary infinite sequences.  An exception is the
-              all-zeros sequence (0, 0, …), which is known to cause
-              problems for many algorithms; implementations may allow
-              initialization by such a sequence.</p>
-          </li>
-          <li>
-            <p>If <var>initializer</var> is neither a random state nor a
-            binary input port, then the effect is undefined.</p>
-          </li>
-        </ul>
-
-        <p>Rationale: In tandem with <code>random-port-state</code>,
-          this provides a way to put a random port into a known state.
-        </p>
-
-        <p>Calling <code>make-random-port</code> without an
-          <var>initializer</var> is equivalent to</p>
-
-        <pre><code>(call-with-port (randomized:make-random-port)
-                make-random-port)</code></pre>
-
-        <p>where <code>randomized:make-random-port</code> denotes the
-          <code>make-random-port</code> procedure exported by
-          <code>(srfi 271 randomized)</code>.</p>
-
-        <div class="note">
-          <h5>Note</h5>
-
-          <p>The difference between initializing a random port with a
-            random port and initializing it with a random-port
-            <em>state</em> is a little subtle.  The following examples
-            are not equivalent:</p>
-
-          <ol>
+          <ul>
             <li>
-              <p><code>(make-random-port rport)</code></p>
+              <p>If <var>initializer</var> is a random-port state, then
+                the initial state of the random port returned by
+                <code>make-random-port</code> is the same as that
+                represented by <var>initializer</var>.</p>
             </li>
             <li>
-              <p>
-                <code>(make-random-port (random-port-state rport))</code>
+              <p>If <var>initializer</var> is a binary input port, then
+                the returned port’s state is constructed from data read
+                from <var>initializer</var>.  The exact process of
+                constructing a random-port state from arbitrary data is
+                unspecified, but if two <var>initializer</var> ports
+                produce the same sequence, then the random ports
+                initialized from them must have the same initial
+                states (in the sense of
+                <a href="#random-port-state-equalp"><code>random-port-state=?</code></a>).
               </p>
-            </li>
-          </ol>
 
-          <p>The first example returns a port whose initial state is
-            constructed from (random) data read from the random port
-            <var>rport</var>, while the second returns a port whose
-            initial state is the same as <var>rport</var>’s state.</p>
+              <p>An error satisfying
+                <code>random-port-initialization-error?</code> is
+                signaled if <code>make-random-port</code> cannot obtain
+                enough data from <var>initializer</var> to initialize a
+                random port state, or if the data obtained is unsuitable
+                for initializing the implementation’s pseudorandom
+                number
+                generator.  Implementations should allow initialization
+                from arbitrary infinite sequences.  An exception is the
+                all-zeros sequence (0, 0, …), which is known to cause
+                problems for many algorithms. Implementations may allow
+                initialization by the all-zeros sequence.</p>
+            </li>
+            <li>
+              <p>If <var>initializer</var> is neither a random-port state
+              nor a binary input port, then the behavior is undefined.</p>
+            </li>
+          </ul>
+
+          <p>Calling <code>make-random-port</code> without an
+            <var>initializer</var> is equivalent to</p>
+
+          <pre><code>(call-with-port (randomized:make-random-port)
+                  make-random-port)</code></pre>
+
+          <p>where <code>randomized:make-random-port</code> denotes the
+            <code>make-random-port</code> procedure exported by
+            <code>(srfi 271 randomized)</code>.</p>
+
+          <div class="note">
+            <h5>Note</h5>
+
+            <p>The difference between initializing a random port with a
+              random port and initializing it with a random-port
+              <em>state</em> is a little subtle.  The following examples
+              are not equivalent:</p>
+
+            <ol>
+              <li>
+                <p><code>(make-random-port rport)</code></p>
+              </li>
+              <li>
+                <p>
+                  <code>(make-random-port
+                  (random-port-state rport))</code>
+                </p>
+              </li>
+            </ol>
+
+            <p>The first example returns a port whose initial state is
+              constructed from (random) data read from the random port
+              <var>rport</var>, while the second returns a port whose
+              initial state is the same as <var>rport</var>’s state.</p>
+          </div>
         </div>
 
-        <p><code>(random-port-state <var>random-port</var>)</code> →
-          state</p>
+        <div class="proc-spec">
+          <p><code>(random-port? <var>obj</var>)</code> → boolean</p>
 
-        <p>Returns an immutable random-state object representing the
-          current state
-          of <var>random-port</var>. If a new port is created with
-          <code>(make-random-port <var>state</var>)</code>, where
-          <var>state</var> is the value of <code>(random-port-state
-            <var>old-port</var>)</code> (or is equal to that value
-          in the sense of <code>equal?</code>), then the new port
-          must produce the same random sequence as <var>old-port</var>.
-        </p>
+          <p>Returns <code>#t</code> if <var>obj</var> is a random port
+            in the sense that it can be safely passed to procedures from
+            the same library which accept a
+            <var>random-port</var> argument.
+            Returns <code>#f</code> otherwise.</p>
 
-        <p><code>(random-port-initialization-error? <var>obj</var>)</code>
-          → boolean</p>
+          <p>Rationale: <code>random-port?</code> may be used to “guard”
+            calls to procedures like <code>random-port-state</code> so as
+            to avoid the undefined behavior associated with ill-typed
+            procedure arguments.</p>
 
-        <p>Returns <code>#t</code> if <var>obj</var> is an object signaled
-          by <code>make-random-port</code> in the circumstances described
-          above, and <code>#f</code> otherwise.</p>
+          <p>If the <code>random-port?</code> procedure exported
+            by one random-port library is applied to a random port
+            from another library, the return value is unspecified but
+            will always be <code>#t</code> or <code>#f</code>.</p>
+
+          <p>Rationale: Some implementations may introduce a
+            type of random ports which encompasses all of the ports
+            created by <code>(srfi 271)</code> libraries.  Others may
+            choose to make each library’s port type disjoint from all
+            other types.  The specification of <code>random-port?</code>
+            is meant to allow both approaches.</p>
+        </div>
+
+        <div class="proc-spec">
+          <p><code>(random-port-state <var>random-port</var>)</code> →
+            state</p>
+
+          <p>Returns a random-port state representing the state of
+            <var>random-port</var>.  If the value returned by
+            <code>random-port-state</code> is mutated, the behavior is
+            undefined.</p>
+        </div>
+
+        <div class="proc-spec">
+          <p><code>(random-port-state? <var>obj</var>)</code> →
+            boolean</p>
+
+          <p>Returns <code>#t</code> if <var>obj</var> is a valid
+            random-port state in the context of the exporting library.
+            Returns <code>#f</code> otherwise.</p>
+
+          <p>If the <code>random-port-state?</code> procedure exported
+            by one random-port library is applied to a random-port state
+            from another library, the return value is unspecified but
+            will always be <code>#t</code> or <code>#f</code>.</p>
+        </div>
+
+        <div class="proc-spec">
+          <p id="random-port-state-equalp"><code>(random-port-state=?
+            <var>state<sub>1</sub></var> <var>state<sub>2</sub></var>
+            <var>state<sub>3</sub></var> …)</code> → boolean</p>
+
+          <p>Returns <code>#t</code> if all the <var>state</var>s are
+            equal, and <code>#f</code> otherwise.  If
+            <code>random-port-state=?</code> is true when applied to two
+            states <var>s<sub>1</sub></var> and <var>s<sub>2</sub></var>,
+            then random ports returned by
+            <code>(make-random-port <var>s<sub>1</sub></var>)</code> and
+            <code>(make-random-port <var>s<sub>2</sub></var>)</code> must
+            produce the same byte sequence.</p>
+        </div>
+
+        <div class="proc-spec">
+          <p><code>(random-port-initialization-error?
+            <var>obj</var>)</code> → boolean</p>
+
+          <p>Returns <code>#t</code> if <var>obj</var> is an object
+            signaled by <code>make-random-port</code> in the circumstances
+            described above, and <code>#f</code> otherwise.</p>
+        </div>
       </div>
     </div>
 
-    <div id="example-determinized-library-names">
-      <h3>Example <code>determinized</code> library names</h3>
+    <div id="example-library-names">
+      <h3>Example library names</h3>
 
       <p><em>This section is informational.</em></p>
 
       <p>Names are based on
         <a href="https://prng.di.unimi.it">Sebastiano Vigna’s PRNG
         page</a> and Wikipedia.</p>
+
+      <h4><code>randomized</code> libraries</h4>
+
+      <dl>
+        <dt>
+          <code>(srfi 271 randomized urandom)</code>
+        </dt>
+        <dd>
+          <p>Library which draws random data from the
+            <code>/dev/urandom</code> file, which is available on most
+            UNIX-like systems.</p>
+        </dd>
+
+        <dt><code>(srfi 271 randomized chacha8)</code></dt>
+        <dt><code>(srfi 271 randomized chacha12)</code></dt>
+        <dt><code>(srfi 271 randomized chacha20)</code></dt>
+        <dd>
+          <p>Libraries using
+            <a href="https://en.wikipedia.org/wiki/Salsa20#ChaCha_variant">ChaCha</a>
+            stream ciphers.</p>
+        </dd>
+      </dl>
+
+      <h4><code>determinized</code> libraries</h4>
 
       <dl>
         <dt>
@@ -500,33 +613,29 @@
 
     <h3>A higher-level interface</h3>
 
-    <p>Since the libraries specified by this SRFI do not provide
+    <p>Since this SRFI does not provide
       procedures for getting generally useful data types (integers
       within arbitrary ranges, reals, etc.) out of random ports, a
-      higher-level interface will be needed to make random-port
-      programming congenial.  The multi-library design of this SRFI leads
-      to one important consideration in choosing such an interface: it
-      should work with random ports from any library.  Because Scheme lacks
-      a means of parameterizing one library over the exports of another,
-      we need an interface to random ports in general, not just to the
-      ports from, say, <code>(srfi 271 randomized)</code>, if we wish to
+      higher-level interface is needed to make random-port
+      programming congenial.  Such an interface should work with random
+      ports from any SRFI 271 library, to
       avoid multiplying libraries unnecessarily.</p>
 
-    <p>For several reasons, detailed below, SRFI 27 would make a poor
-      high-level interface to random ports.  SRFI 194, while specified in
-      terms of SRFI 27, is a better fit, and it provides more kinds
-      of random-data generators than most programmers will ever need.
-      By wrapping random ports in SRFI 158 generators, however, several
-      useful properties of ports would be lost (see
-      <a href="#rationale">the Rationale</a> for details).  My preference
-      (which may be reified in a future SRFI) is for a library of bland
+    <p>For reasons detailed below, SRFI 27 would make a poor
+      interface to random ports.  SRFI 194, while specified in
+      terms of SRFI 27, is a better fit, and it provides more
+      random-data generators than most programmers will ever need.
+      Wrapping random ports in SRFI 158 generators, however, would
+      hide several useful properties of input ports (see the
+      <a href="#rationale">Rationale</a> for details).  My preference
+      (which may be reified in a future SRFI) is a library of bland
       port-reading procedures, e.g. <code>read-random-integer</code>,
       <code>read-random-real</code>, etc., which would do the (sometimes
-      prickly) job of extracting good-quality random values without
-      hiding the ports providing the raw data.</p>
+      tricky) job of extracting good-quality random values without
+      hiding the ports themselves.</p>
 
     <p>That being said, SRFI 27 remains the best-known random-number
-      interface in Scheme, and it may be desirable to provide both SRFI
+      interface in Scheme, and implementers may want to provide both SRFI
       27 and 271 interfaces.  A discussion of SRFI 27 / 271 compatibility
       issues follows.</p>
 
@@ -569,7 +678,7 @@
 
     <h2 id="acknowledgements">Acknowledgements</h2>
 
-    <p>Thanks to John W. Cowan for helping to chip away
+    <p>Thanks to John W. Cowan and Peter McGoron for helping to chip away
       everything in this SRFI that did not look like an elephant.</p>
 
     <p>Thanks to Taylor Campbell and Alaric Snell-Pym for suggestions
@@ -579,7 +688,10 @@
       properties of such a source; any inaccuracies in the SRFI’s
       version are my own doing.</p>
 
-    <p>Thanks to Peter McGoron and the other members of the R7RS
+    <p>Thanks to Zhu Zihao for pointing out the connection between port
+      positions and seekable random-number generators.</p>
+
+    <p>Thanks to the members of the R7RS
       Second Working Group for advice and discussion.</p>
 
     <p>Thanks to those who provided feedback via the SRFI mailing list
@@ -600,6 +712,11 @@
       <cite>Revised Revised Report on Scheme</cite> (RRRS), MIT
       Artificial Intelligence Memo No. 848, August
       1985.</p>
+
+    <p id="r6rs">Michael Sperber, R. Kent Dybvig, Matthew Flatt, &amp;
+      Anton van Straaten, eds., <cite>Revised<sup>6</sup> Report on the
+      Algorithmic Language Scheme</cite> (R6RS), 2007.
+      <a href="https://www.r6rs.org">https://www.r6rs.org</a>.</p>
 
     <p id="r7rs">Alex Shinn, John Cowan, &amp; Arthur A. Gleckler,
       eds., <cite>Revised<sup>7</sup> Report on the Algorithmic Language
@@ -627,6 +744,15 @@
       <cite>SRFI 158: Generators and Accumulators</cite>.
       <a href="https://srfi.schemers.org/srfi-158/">
         https://srfi.schemers.org/srfi-158/</a>, 2017.</p>
+
+    <p id="srfi-181">John Cowan, <cite>SRFI 181: Custom ports
+      (including transcoded ports)</cite>.
+      <a href="https://srfi.schemers.org/srfi-181/">
+        https://srfi.schemers.org/srfi-181/</a>, 2020.</p>
+
+    <p id="srfi-192">John Cowan and Shiro Kawai, <cite>SRFI 192: Port
+      Positioning</cite>. <a href="https://srfi.schemers.org/srfi-192/">
+        https://srfi.schemers.org/srfi-192/</a>, 2020.</p>
 
     <p id="srfi-194">Shiro Kawai, Arvydas Silanskas, Linas Vepštas,
       and John Cowan. <cite>SRFI 194: Random data generators</cite>.

@@ -2,15 +2,18 @@
 ;;; SPDX-License-Identifier: MIT
 (define-library (srfi 271 determinized xoshiro256++)
   (export make-random-port
+          random-port?
           random-port-state
+          random-port-state?
+          random-state=?
           random-port-initialization-error?
           )
   (import (scheme base)
           (scheme bytevector)
           (scheme case-lambda)
           (scheme write)
+          (only (srfi 1) every fold)
           (srfi 151)
-          (srfi 160 u64)
           (gauche base)
           (gauche keyword)
           (gauche vport)
@@ -30,6 +33,12 @@
 
     (define state-number-of-bytes 32)
 
+    (define (be-bvec-u64-ref bvec k)
+      (bytevector-u64-ref bvec k (endianness big)))
+
+    (define (be-bvec-u64-set! bvec k n)
+      (bytevector-u64-set! bvec k n (endianness big)))
+
     (define mask (- (expt 2 64) 1))
 
     (define (+/mask a b)
@@ -43,18 +52,18 @@
                    (ashift/mask x (- k 64))))
 
     (define (xoshiro! state)
-      (let ((s0 (u64vector-ref state 0))
-            (s1 (u64vector-ref state 1))
-            (s2 (u64vector-ref state 2))
-            (s3 (u64vector-ref state 3)))
+      (let ((s0 (be-bvec-u64-ref state 0))
+            (s1 (be-bvec-u64-ref state 8))
+            (s2 (be-bvec-u64-ref state 16))
+            (s3 (be-bvec-u64-ref state 24)))
         (let ((result (+/mask (rol64 (+/mask s0 s3) 23) s0))
               (t (ashift/mask s1 17)))
-          (u64vector-set! state 2 (bitwise-xor s2 s0))
-          (u64vector-set! state 3 (bitwise-xor s3 s1))
-          (u64vector-set! state 1 (bitwise-xor s1 s2))
-          (u64vector-set! state 0 (bitwise-xor s0 s3))
-          (u64vector-set! state 2 (bitwise-xor s2 t))
-          (u64vector-set! state 3 (rol64 s3 45))
+          (be-bvec-u64-set! state 16 (bitwise-xor s2 s0))
+          (be-bvec-u64-set! state 24 (bitwise-xor s3 s1))
+          (be-bvec-u64-set! state 8 (bitwise-xor s1 s2))
+          (be-bvec-u64-set! state 0 (bitwise-xor s0 s3))
+          (be-bvec-u64-set! state 16 (bitwise-xor s2 t))
+          (be-bvec-u64-set! state 24 (rol64 s3 45))
           result)))
 
     ;; Wrapper to get bytes out of the xoshiro generator.
@@ -75,46 +84,37 @@
 
     ;;; xoshiro state manipulation
 
-    (define (xoshiro-state? x)
-      (and (u64vector? x)
-           (= 4 (u64vector-length x))
-           (not (u64vector-every zero? x))))
-
-    (define BE (endianness big))
+    (define (random-port-state? x)
+      (and (bytevector? x)
+           (= state-number-of-bytes (bytevector-length x))
+           (not (every zero? (bytevector->u8-list x)))))
 
     (define (make-state-from-port port)
       (let ((bvec (read-bytevector state-number-of-bytes port)))
         (when (eof-object? bvec)
           (random-port-initialization-error))
-        (u64vector (bytevector-u64-ref bvec 0 BE)
-                   (bytevector-u64-ref bvec 8 BE)
-                   (bytevector-u64-ref bvec 16 BE)
-                   (bytevector-u64-ref bvec 24 BE))))
+        bvec))
 
-    ;; Based on Vigna's public-domain splitmix64.
-    (define (make-state-from-integer x)
-      (let ((next
-             (lambda ()
-               (set! x (+/mask x #x9e3779b97f4a7c15))
-               (let ((z (*/mask (bitwise-xor x (ashift/mask x -30))
-                                #xbf58476d1ce4e5b9)))
-                 (set! z (*/mask (bitwise-xor z (ashift/mask z -27))
-                                 #x94d049bb133111eb))
-                 (bitwise-xor z (ashift/mask z -31)))))
-            (state (make-u64vector 4)))
-        (u64vector-set! state 0 (next))
-        (u64vector-set! state 1 (next))
-        (u64vector-set! state 2 (next))
-        (u64vector-set! state 3 (next))
-        state))
+    ;; Exported
+    (define (random-state=? state . rest-states)
+      (when (null? rest-states)
+        (error "invalid number of state arguments"))
+      (let ((check-state
+             (lambda (x)
+               (unless (random-port-state? x)
+                 (error "invalid argument: not a random-port state"
+                        x)))))
+        (check-state state)
+        (for-each check-state rest-states)
+        (every (lambda (st) (equal? state st)) rest-states)))
 
     ;;; xoshiro warmup
 
     ;; Returns the total number of 1 bits in *state*'s elements.
     (define (xoshiro-state-bit-count state)
-      (u64vector-fold (lambda (s k) (+ s (bit-count k)))
-                      0
-                      state))
+      (fold (lambda (s k) (+ s (bit-count k)))
+            0
+            (bytevector->u8-list state)))
 
     ;; True if the binary representation of *state* has an
     ;; approximately even distribution of 1s and 0s.
@@ -159,13 +159,13 @@
          (let* ((init
                  (cond ((input-port? initializer)
                         (make-state-from-port initializer))
-                       ((xoshiro-state? initializer)
-                        (u64vector-copy initializer))
+                       ((random-port-state? initializer)
+                        (bytevector-copy initializer))
                        (else
                         (error "make-random-port: invalid initializer"
                                initializer))))
                 (port (make-xoshiro-random-port init)))
-           (unless (xoshiro-state? initializer)
+           (unless (random-port-state? initializer)
              (random-port-warmup! port))
            port))))
 
@@ -185,6 +185,9 @@
 
     (define-class <random-port> (<virtual-input-port>)
       ((state :getter random-port-state)))
+
+    (define (random-port? x)
+      (is-a? x <random-port>))
 
     (define-method initialize ((self <random-port>) initargs)
       (let ((state (car initargs))
