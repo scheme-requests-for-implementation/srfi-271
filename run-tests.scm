@@ -91,7 +91,7 @@
     (read-u8 p2)
     (read-u8 p3)
     (d:random-port-state=? (d:random-port-state p1)
-                      (d:random-port-state p2)
-                      (d:random-port-state p3))))
+                           (d:random-port-state p2)
+                           (d:random-port-state p3))))
 
 (test-end)
