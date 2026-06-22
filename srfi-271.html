@@ -75,6 +75,7 @@
               <li><a href="#discussion">Discussion</a></li>
             </ol>
           </li>
+          <li><a href="#example-of-usage">Example of usage</a></li>
           <li>
             <a href="#interface">Interface</a>
             <ol type="i">
@@ -531,6 +532,47 @@
             described above, and <code>#f</code> otherwise.</p>
         </div>
       </div>
+    </div>
+
+    <div id="example-of-usage">
+      <h4>Example of usage</h4>
+
+      <p><em>This section is informational.</em></p>
+
+      <pre><code>(import (scheme base)
+        (srfi 271 determinized)
+        (prefix (srfi 271 randomized) r:))
+
+(define rport (make-random-port))
+
+;; Explicit initialization using another port.
+(let ((rport2 (make-random-port (r:make-random-port))))
+  (equal? (read-bytevector 100 rport)
+          (read-bytevector 100 rport2)))
+;; ⇒ #f with a high probability
+
+(define rport-state (random-port-state rport))
+
+;; Initialization with a random-port state.
+(let ((rport2 (make-random-port rport-state)))
+  (equal? (read-bytevector 100 rport)
+          (read-bytevector 100 rport2)))
+;; ⇒ #t
+
+(random-port-state=? (random-port-state rport)
+                     (random-port-state rport2))
+;; ⇒ #t
+
+;; Serializing a random-port state.
+(let ((output (open-output-string)))
+  (write rport-state output)
+  (let* ((str (get-output-string output))
+         (input (open-input-string str))
+         (serialized-state (read input)))
+    (random-port-state=? rport-state serialized-state)))
+;; ⇒ #t</code></pre>
+
+      <p>This example was provided by Peter McGoron.</p>
     </div>
 
     <div id="example-library-names">
