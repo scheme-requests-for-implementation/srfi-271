@@ -5,7 +5,7 @@
           random-port?
           random-port-state
           random-port-state?
-          random-state=?
+          random-port-state=?
           random-port-initialization-error?
           )
   (import (srfi 271 determinized xoshiro256++)))

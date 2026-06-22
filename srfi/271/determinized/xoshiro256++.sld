@@ -5,7 +5,7 @@
           random-port?
           random-port-state
           random-port-state?
-          random-state=?
+          random-port-state=?
           random-port-initialization-error?
           )
   (import (scheme base)
@@ -96,7 +96,7 @@
         bvec))
 
     ;; Exported
-    (define (random-state=? state . rest-states)
+    (define (random-port-state=? state . rest-states)
       (when (null? rest-states)
         (error "invalid number of state arguments"))
       (let ((check-state
