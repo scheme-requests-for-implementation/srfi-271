@@ -540,6 +540,8 @@
       <p><em>This section is informational.</em></p>
 
       <pre><code>(import (scheme base)
+        (scheme read)
+        (scheme write)
         (srfi 271 determinized)
         (prefix (srfi 271 randomized) r:))
 
@@ -554,13 +556,14 @@
 (define rport-state (random-port-state rport))
 
 ;; Initialization with a random-port state.
-(let ((rport2 (make-random-port rport-state)))
-  (equal? (read-bytevector 100 rport)
-          (read-bytevector 100 rport2)))
+(define rport3 (make-random-port rport-state))
+
+(equal? (read-bytevector 100 rport)
+        (read-bytevector 100 rport3))
 ;; ⇒ #t
 
 (random-port-state=? (random-port-state rport)
-                     (random-port-state rport2))
+                     (random-port-state rport3))
 ;; ⇒ #t
 
 ;; Serializing a random-port state.
@@ -572,7 +575,8 @@
     (random-port-state=? rport-state serialized-state)))
 ;; ⇒ #t</code></pre>
 
-      <p>This example was provided by Peter McGoron.</p>
+      <p>This is a revised version of an example provided by
+        Peter McGoron.</p>
     </div>
 
     <div id="example-library-names">
