@@ -342,6 +342,13 @@
         a higher-level library, similar to SRFI 194, which can transform
         the binary output of a random port into values of other types.</p>
 
+      <p>Implementations might provide both randomized and determinized
+        libraries for the same random-number generator.  For
+        security-relevant applications, it may be undesirable to
+        allow ports to be initialized from known, possibly
+        very low-entropy, states.  The randomized library interface,
+        which does not allow this, could be seen as slightly safer.</p>
+
       <p>If this proposal is incorporated into the R7RS, I suggest
         that aliases under the library prefix <code>(scheme random)</code>
         (e.g. <code>(scheme random randomized)</code>,
@@ -547,6 +554,19 @@
             UNIX-like systems.</p>
         </dd>
 
+        <dt>
+          <code>(srfi 271 randomized hwrng)</code>
+        </dt>
+        <dd>
+          <p>Linux-only library which draws random data from a hardware
+            random-number generator via the <code>/dev/hwrng</code>
+            file.</p>
+        </dd>
+      </dl>
+
+      <h4><code>determinized</code> libraries</h4>
+
+      <dl>
         <dt><code>(srfi 271 randomized chacha8)</code></dt>
         <dt><code>(srfi 271 randomized chacha12)</code></dt>
         <dt><code>(srfi 271 randomized chacha20)</code></dt>
@@ -555,11 +575,6 @@
             <a href="https://en.wikipedia.org/wiki/Salsa20#ChaCha_variant">ChaCha</a>
             stream ciphers.</p>
         </dd>
-      </dl>
-
-      <h4><code>determinized</code> libraries</h4>
-
-      <dl>
         <dt>
           <code>(srfi 271 determinized xorshift)</code>
         </dt>
