@@ -5,7 +5,7 @@
           random-port?
           random-port-state
           random-port-state?
-          random-state=?
+          random-port-state=?
           random-port-initialization-error?
           )
   (import (scheme base)
@@ -96,7 +96,7 @@
         bvec))
 
     ;; Exported
-    (define (random-state=? state . rest-states)
+    (define (random-port-state=? state . rest-states)
       (when (null? rest-states)
         (error "invalid number of state arguments"))
       (let ((check-state
@@ -149,7 +149,9 @@
         port))
 
     (define (make-xoshiro-random-port init)
-      (make <random-port> init xoshiro-bytes!))
+      (make <random-port>
+            :state init
+            :getb (lambda () (xoshiro-bytes! init))))
 
     (define make-random-port
       (case-lambda
@@ -171,28 +173,10 @@
 
     ;;; Gauche virtual port type
 
-    ;; The Gauche object system is new to me. This probably needs
-    ;; work.
-    ;;
-    ;; Here's how it works so far:
-    ;;
-    ;; A gen-and-transform! procedure is passed to the <random-port>
-    ;; initializer even though it does not correspond to a field.
-    ;; It is expected to both mutate the state slot and return a byte
-    ;; when invoked.  If 'getb' were a virtual-port method rather
-    ;; than an instance variable, we could do things differently,
-    ;; since a method would have access to the port object itself.
-
     (define-class <random-port> (<virtual-input-port>)
-      ((state :getter random-port-state)))
+      ((state :getter random-port-state :init-keyword :state)))
 
     (define (random-port? x)
       (is-a? x <random-port>))
 
-    (define-method initialize ((self <random-port>) initargs)
-      (let ((state (car initargs))
-            (gen-&-transform! (cadr initargs)))
-        (next-method)
-        (slot-set! self 'state state)
-        (slot-set! self 'getb (lambda () (gen-&-transform! state)))))
     ))
