@@ -385,7 +385,8 @@
 
           <ul>
             <li>
-              <p>If <var>initializer</var> is a random-port state, then
+              <p>If <var>initializer</var> is a random-port state in
+                the sense of <code>random-port-state?</code>, then
                 the initial state of the random port returned by
                 <code>make-random-port</code> is the same as that
                 represented by <var>initializer</var>.</p>
@@ -520,6 +521,10 @@
             <code>(make-random-port <var>s<sub>1</sub></var>)</code> and
             <code>(make-random-port <var>s<sub>2</sub></var>)</code> must
             produce the same byte sequence.</p>
+
+          <p>If any of the <var>state</var>s does not satisfy
+            <code>random-port-state?</code>, then the behavior is
+            undefined.</p>
         </div>
 
         <div class="proc-spec">
