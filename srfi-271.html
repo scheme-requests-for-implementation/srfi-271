@@ -166,7 +166,7 @@
       semi-opaque objects (i.e. objects of unspecified type with
       external representations).
       Whereas SRFI 27 allows the user to
-      get the state of any source, however, this SRFI only
+      get the state of any source, this SRFI only
       exposes the states of determinized random ports.
       The states of randomized ports cannot in general
       be represented by Scheme values.  (Consider a random port
@@ -200,11 +200,10 @@
 
     <p>SRFI 194's generator-based
       interface is another option.
-      <a href="https://srfi.schemers.org/srfi-158/">SRFI 158</a>
-      generators, however, are ill-defined,
-      being no more than nullary Scheme procedures. There is no portable
-      way to distinguish a
-      generator from any other procedure.
+      Generators (see
+      <a href="https://srfi.schemers.org/srfi-158/">SRFI 158</a>),
+      however, are no than nullary Scheme procedures, and are perhaps
+      too simple for the present purpose.
       They mimic input ports in several ways, but there are important
       port operations that they cannot support in current Scheme.
       (For example, it isn’t possible to write <code>peek</code> or
@@ -300,7 +299,7 @@
         <code>(srfi 271 randomized)</code>. (Rationale:
         Rushed or incautious programmers who just want random numbers
         get those most likely to be of cryptographic quality. See
-        e.g. <a href="#riastradh-comments">Taylor Campbell’s
+        <a href="#riastradh-comments">Taylor Campbell’s
         comments</a> on preferable defaults.)</p>
 
       <h4 id="library-protocol">Library protocol</h4>
