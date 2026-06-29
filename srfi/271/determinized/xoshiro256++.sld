@@ -112,7 +112,7 @@
 
     ;; Returns the total number of 1 bits in *state*'s elements.
     (define (xoshiro-state-bit-count state)
-      (fold (lambda (s k) (+ s (bit-count k)))
+      (fold (lambda (k s) (+ s (bit-count k)))
             0
             (bytevector->u8-list state)))
 
