@@ -97,7 +97,6 @@
            "couldn't read enough data to initialize port"))
         bvec))
 
-    ;; Exported
     (define (random-port-state=? state . rest-states)
       (when (null? rest-states)
         (error "invalid number of state arguments"))
@@ -110,6 +109,13 @@
         (every (lambda (st) (equal? state st)) rest-states)))
 
     ;;; xoshiro warmup
+
+    ;;; To improve the quality of xoshiro output, we execute a number
+    ;;; of "warmup" cycles (reads) on a port until its state is nicely
+    ;;; scrambled, i.e. it has approximately the same number of 1 and
+    ;;; 0 bits.  At least *minimum-warmup-cycles* cycles are run.  If
+    ;;; we can't get a scrambled state after *maximum-warmup-cycles*
+    ;;; reads, we give up and signal an init. error.
 
     ;; Returns the total number of 1 bits in *state*'s elements.
     (define (xoshiro-state-bit-count state)
@@ -124,16 +130,10 @@
                       (* state-number-of-bytes 8))))
         (< 0.48 ratio 0.52)))
 
-    ;; Run at least this many warmup cycles.
     (define minimum-warmup-cycles 8)
 
-    ;; Give up and signal an initialization error if a scrambled
-    ;; xoshiro state can't be obtained after this number of warmup
-    ;; cycles.
     (define maximum-warmup-cycles 1024)
 
-    ;; Do some reads on *port*, in the hopes of getting a nicely
-    ;; scrambled state.
     (define (random-port-warmup! port)
       (letrec*
        ((c 0)
