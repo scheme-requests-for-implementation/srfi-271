@@ -76,10 +76,10 @@
      &error
      random-port-initialization-error?)
 
-    (define (random-port-initialization-error)
+    (define (random-port-initialization-error msg)
       (raise-continuable
        (condition
-        (&message (message "not enough data to initialize port"))
+        (&message (message msg))
         (&random-port-init))))
 
     ;;; xoshiro state manipulation
@@ -91,8 +91,10 @@
 
     (define (make-state-from-port port)
       (let ((bvec (read-bytevector state-number-of-bytes port)))
-        (when (eof-object? bvec)
-          (random-port-initialization-error))
+        (when (or (eof-object? bvec)
+                  (< (bytevector-length bvec) state-number-of-bytes))
+          (random-port-initialization-error
+           "couldn't read enough data to initialize port"))
         bvec))
 
     ;; Exported
@@ -102,8 +104,7 @@
       (let ((check-state
              (lambda (x)
                (unless (random-port-state? x)
-                 (error "invalid argument: not a random-port state"
-                        x)))))
+                 (error "invalid argument" x)))))
         (check-state state)
         (for-each check-state rest-states)
         (every (lambda (st) (equal? state st)) rest-states)))
@@ -131,6 +132,8 @@
     ;; cycles.
     (define maximum-warmup-cycles 1024)
 
+    ;; Do some reads on *port*, in the hopes of getting a nicely
+    ;; scrambled state.
     (define (random-port-warmup! port)
       (letrec*
        ((c 0)
@@ -140,7 +143,8 @@
                        (xoshiro-state-scrambled?
                         (random-port-state port))))
                  ((>= c maximum-warmup-cycles)
-                  (random-port-initialization-error))
+                  (random-port-initialization-error
+                   "couldn't obtain a valid state"))
                  (else
                   (set! c (+ c 1))
                   (read-u8 port)
@@ -159,14 +163,17 @@
          (call-with-port (r:make-random-port) make-random-port))
         ((initializer)
          (let* ((init
-                 (cond ((input-port? initializer)
+                 (cond ((and (input-port? initializer)
+                             (binary-port? initializer))
                         (make-state-from-port initializer))
                        ((random-port-state? initializer)
                         (bytevector-copy initializer))
                        (else
-                        (error "make-random-port: invalid initializer"
-                               initializer))))
+                        (error "invalid initializer" initializer))))
                 (port (make-xoshiro-random-port init)))
+           ;; Assume a state argument is valid.  We can't run warmup
+           ;; cycles in this case without violating the "same state,
+           ;; same sequence" rule.
            (unless (random-port-state? initializer)
              (random-port-warmup! port))
            port))))
