@@ -149,7 +149,7 @@
     <a href="#terminology">Terminology</a> section for a precise — or
     at least longer — definition.</p>
 
-    <h3>Random port states</h3>
+    <h3>Random-port states</h3>
 
     <p>Everyone agrees that it is sometimes useful to generate
       the same random sequence several times, e.g. on each run of
@@ -166,12 +166,12 @@
       semi-opaque objects (i.e. objects of unspecified type with
       external representations).
       Whereas SRFI 27 allows the user to
-      get the state of any source, however, this SRFI only
+      get the state of any source, this SRFI only
       exposes the states of determinized random ports.
       The states of randomized ports cannot in general
       be represented by Scheme values.  (Consider a random port
       backed by a hardware random-number generator, for example.)
-      Random-port states can also be compared for equality with
+      Random-port states can be compared for equality with
       <code>random-port-state=?</code>, a feature not explicitly
       provided by SRFI 27.</p>
 
@@ -200,11 +200,10 @@
 
     <p>SRFI 194's generator-based
       interface is another option.
-      <a href="https://srfi.schemers.org/srfi-158/">SRFI 158</a>
-      generators, however, are ill-defined,
-      being no more than nullary Scheme procedures. There is no portable
-      way to distinguish a
-      generator from any other procedure.
+      Generators (see
+      <a href="https://srfi.schemers.org/srfi-158/">SRFI 158</a>),
+      however, are no than nullary Scheme procedures, and are perhaps
+      too simple for the present purpose.
       They mimic input ports in several ways, but there are important
       port operations that they cannot support in current Scheme.
       (For example, it isn’t possible to write <code>peek</code> or
@@ -300,7 +299,7 @@
         <code>(srfi 271 randomized)</code>. (Rationale:
         Rushed or incautious programmers who just want random numbers
         get those most likely to be of cryptographic quality. See
-        e.g. <a href="#riastradh-comments">Taylor Campbell’s
+        <a href="#riastradh-comments">Taylor Campbell’s
         comments</a> on preferable defaults.)</p>
 
       <h4 id="library-protocol">Library protocol</h4>
@@ -425,7 +424,7 @@
             <var>initializer</var> is equivalent to</p>
 
           <pre><code>(call-with-port (randomized:make-random-port)
-                  make-random-port)</code></pre>
+                make-random-port)</code></pre>
 
           <p>where <code>randomized:make-random-port</code> denotes the
             <code>make-random-port</code> procedure exported by
@@ -622,9 +621,9 @@
       <h4><code>determinized</code> libraries</h4>
 
       <dl>
-        <dt><code>(srfi 271 randomized chacha8)</code></dt>
-        <dt><code>(srfi 271 randomized chacha12)</code></dt>
-        <dt><code>(srfi 271 randomized chacha20)</code></dt>
+        <dt><code>(srfi 271 determinized chacha8)</code></dt>
+        <dt><code>(srfi 271 determinized chacha12)</code></dt>
+        <dt><code>(srfi 271 determinized chacha20)</code></dt>
         <dd>
           <p>Libraries using
             <a href="https://en.wikipedia.org/wiki/Salsa20#ChaCha_variant">ChaCha</a>

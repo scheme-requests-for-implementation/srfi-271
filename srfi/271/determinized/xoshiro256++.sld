@@ -76,10 +76,10 @@
      &error
      random-port-initialization-error?)
 
-    (define (random-port-initialization-error)
+    (define (random-port-initialization-error msg)
       (raise-continuable
        (condition
-        (&message (message "not enough data to initialize port"))
+        (&message (message msg))
         (&random-port-init))))
 
     ;;; xoshiro state manipulation
@@ -91,28 +91,35 @@
 
     (define (make-state-from-port port)
       (let ((bvec (read-bytevector state-number-of-bytes port)))
-        (when (eof-object? bvec)
-          (random-port-initialization-error))
+        (when (or (eof-object? bvec)
+                  (< (bytevector-length bvec) state-number-of-bytes))
+          (random-port-initialization-error
+           "couldn't read enough data to initialize port"))
         bvec))
 
-    ;; Exported
     (define (random-port-state=? state . rest-states)
       (when (null? rest-states)
         (error "invalid number of state arguments"))
       (let ((check-state
              (lambda (x)
                (unless (random-port-state? x)
-                 (error "invalid argument: not a random-port state"
-                        x)))))
+                 (error "invalid argument" x)))))
         (check-state state)
         (for-each check-state rest-states)
         (every (lambda (st) (equal? state st)) rest-states)))
 
     ;;; xoshiro warmup
 
+    ;;; To improve the quality of xoshiro output, we execute a number
+    ;;; of "warmup" cycles (reads) on a port until its state is nicely
+    ;;; scrambled, i.e. it has approximately the same number of 1 and
+    ;;; 0 bits.  At least *minimum-warmup-cycles* cycles are run.  If
+    ;;; we can't get a scrambled state after *maximum-warmup-cycles*
+    ;;; reads, we give up and signal an init. error.
+
     ;; Returns the total number of 1 bits in *state*'s elements.
     (define (xoshiro-state-bit-count state)
-      (fold (lambda (s k) (+ s (bit-count k)))
+      (fold (lambda (k s) (+ s (bit-count k)))
             0
             (bytevector->u8-list state)))
 
@@ -123,12 +130,8 @@
                       (* state-number-of-bytes 8))))
         (< 0.48 ratio 0.52)))
 
-    ;; Run at least this many warmup cycles.
     (define minimum-warmup-cycles 8)
 
-    ;; Give up and signal an initialization error if a scrambled
-    ;; xoshiro state can't be obtained after this number of warmup
-    ;; cycles.
     (define maximum-warmup-cycles 1024)
 
     (define (random-port-warmup! port)
@@ -140,7 +143,8 @@
                        (xoshiro-state-scrambled?
                         (random-port-state port))))
                  ((>= c maximum-warmup-cycles)
-                  (random-port-initialization-error))
+                  (random-port-initialization-error
+                   "couldn't obtain a valid state"))
                  (else
                   (set! c (+ c 1))
                   (read-u8 port)
@@ -159,14 +163,17 @@
          (call-with-port (r:make-random-port) make-random-port))
         ((initializer)
          (let* ((init
-                 (cond ((input-port? initializer)
+                 (cond ((and (input-port? initializer)
+                             (binary-port? initializer))
                         (make-state-from-port initializer))
                        ((random-port-state? initializer)
                         (bytevector-copy initializer))
                        (else
-                        (error "make-random-port: invalid initializer"
-                               initializer))))
+                        (error "invalid initializer" initializer))))
                 (port (make-xoshiro-random-port init)))
+           ;; Assume a state argument is valid.  We can't run warmup
+           ;; cycles in this case without violating the "same state,
+           ;; same sequence" rule.
            (unless (random-port-state? initializer)
              (random-port-warmup! port))
            port))))
