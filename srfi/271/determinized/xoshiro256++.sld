@@ -51,20 +51,30 @@
       (bitwise-ior (ashift/mask x k)
                    (ashift/mask x (- k 64))))
 
+    ;; For paranoia's sake, state values are always accessed from
+    ;; 'state', even when two accesses are guaranteed to give the
+    ;; same value.  (An earlier version of this procedure produced
+    ;; *very* predictable results due to the accidental reuse of
+    ;; s2 and s3 state values.)
     (define (xoshiro! state)
-      (let ((s0 (be-bvec-u64-ref state 0))
-            (s1 (be-bvec-u64-ref state 8))
-            (s2 (be-bvec-u64-ref state 16))
-            (s3 (be-bvec-u64-ref state 24)))
-        (let ((result (+/mask (rol64 (+/mask s0 s3) 23) s0))
-              (t (ashift/mask s1 17)))
-          (be-bvec-u64-set! state 16 (bitwise-xor s2 s0))
-          (be-bvec-u64-set! state 24 (bitwise-xor s3 s1))
-          (be-bvec-u64-set! state 8 (bitwise-xor s1 s2))
-          (be-bvec-u64-set! state 0 (bitwise-xor s0 s3))
-          (be-bvec-u64-set! state 16 (bitwise-xor s2 t))
-          (be-bvec-u64-set! state 24 (rol64 s3 45))
-          result)))
+      (let ((get-s0 (lambda () (be-bvec-u64-ref state 0)))
+            (get-s1 (lambda () (be-bvec-u64-ref state 8)))
+            (get-s2 (lambda () (be-bvec-u64-ref state 16)))
+            (get-s3 (lambda () (be-bvec-u64-ref state 24)))
+            (set-s0! (lambda (k) (be-bvec-u64-set! state 0 k)))
+            (set-s1! (lambda (k) (be-bvec-u64-set! state 8 k)))
+            (set-s2! (lambda (k) (be-bvec-u64-set! state 16 k)))
+            (set-s3! (lambda (k) (be-bvec-u64-set! state 24 k))))
+        (let ((result (+/mask (rol64 (+/mask (get-s0) (get-s3)) 23)
+                              (get-s0)))
+              (t (ashift/mask (get-s1) 17)))
+            (set-s2! (bitwise-xor (get-s2) (get-s0)))
+            (set-s3! (bitwise-xor (get-s3) (get-s1)))
+            (set-s1! (bitwise-xor (get-s1) (get-s2)))
+            (set-s0! (bitwise-xor (get-s0) (get-s3)))
+            (set-s2! (bitwise-xor (get-s2) t))
+            (set-s3! (rol64 (get-s3) 45))
+            result)))
 
     ;; Wrapper to get bytes out of the xoshiro generator.
     (define (xoshiro-bytes! state)
