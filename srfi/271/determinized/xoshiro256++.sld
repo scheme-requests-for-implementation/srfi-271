@@ -33,11 +33,7 @@
 
     (define state-number-of-bytes 32)
 
-    (define (be-bvec-u64-ref bvec k)
-      (bytevector-u64-ref bvec k (endianness big)))
-
-    (define (be-bvec-u64-set! bvec k n)
-      (bytevector-u64-set! bvec k n (endianness big)))
+    (define BE (endianness big))
 
     (define mask (- (expt 2 64) 1))
 
@@ -57,14 +53,38 @@
     ;; *very* predictable results due to the accidental reuse of
     ;; s2 and s3 state values.)
     (define (xoshiro! state)
-      (let ((get-s0 (lambda () (be-bvec-u64-ref state 0)))
-            (get-s1 (lambda () (be-bvec-u64-ref state 8)))
-            (get-s2 (lambda () (be-bvec-u64-ref state 16)))
-            (get-s3 (lambda () (be-bvec-u64-ref state 24)))
-            (set-s0! (lambda (k) (be-bvec-u64-set! state 0 k)))
-            (set-s1! (lambda (k) (be-bvec-u64-set! state 8 k)))
-            (set-s2! (lambda (k) (be-bvec-u64-set! state 16 k)))
-            (set-s3! (lambda (k) (be-bvec-u64-set! state 24 k))))
+      (let-syntax ((get-s0
+                    (syntax-rules ()
+                      ((_)
+                       (bytevector-u64-ref state 0 BE))))
+                   (set-s0!
+                    (syntax-rules ()
+                      ((_ k)
+                       (bytevector-u64-set! state 0 k BE))))
+                   (get-s1
+                    (syntax-rules ()
+                      ((_)
+                       (bytevector-u64-ref state 8 BE))))
+                   (set-s1!
+                    (syntax-rules ()
+                      ((_ k)
+                       (bytevector-u64-set! state 8 k BE))))
+                   (get-s2
+                    (syntax-rules ()
+                      ((_)
+                       (bytevector-u64-ref state 16 BE))))
+                   (set-s2!
+                    (syntax-rules ()
+                      ((_ k)
+                       (bytevector-u64-set! state 16 k BE))))
+                   (get-s3
+                    (syntax-rules ()
+                      ((_)
+                      (bytevector-u64-ref state 24 BE))))
+                   (set-s3!
+                    (syntax-rules ()
+                      ((_ k)
+                       (bytevector-u64-set! state 24 k BE)))))
         (let ((result (+/mask (rol64 (+/mask (get-s0) (get-s3)) 23)
                               (get-s0)))
               (t (ashift/mask (get-s1) 17)))
