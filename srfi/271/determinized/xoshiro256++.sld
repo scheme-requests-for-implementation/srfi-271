@@ -97,6 +97,11 @@
             result)))
 
     ;; Wrapper to get bytes out of the xoshiro generator.
+    ;;
+    ;; Note: Taking a big random number modulo the width of the desired
+    ;; interval can skew the range.  I believe this is safe, since the
+    ;; width of the [0, 2^64) interval of *state* is a multiple of the
+    ;; width of the [0, 2^8) range.  (Please check me on this.)
     (define (xoshiro-bytes! state)
       (remainder (xoshiro! state) #x100))
 
