@@ -55,11 +55,19 @@
       A mechanism for saving random-port states and
       propagating them to new ports is also provided.</p>
 
-    <h2 id="toc">Contents</h2>
+    <h2 id="issues">Issues</h2>
 
+    <p>None at present.</p>
+
+    <h2 id="toc">Table of contents</h2>
     <ol>
-      <li><a href="#issues">Issues</a></li>
-      <li><a href="#rationale">Rationale</a></li>
+      <li>
+        <a href="#rationale">Rationale</a>
+        <ol type="a">
+          <li><a href="#random-port-states">Random-port states</a></li>
+          <li><a href="#why-ports">Why ports?</a></li>
+        </ol>
+      </li>
       <li>
         <a href="#specification">Specification</a>
         <ol type="a">
@@ -67,43 +75,40 @@
           <li>
             <a href="#libraries">Libraries</a>
             <ol type="i">
-              <li>
-                <a href="#library-protocol">Library protocol</a>
-              </li>
-              <li>
-                <a href="#additional-libraries">Additional
-                  libraries</a>
-              </li>
+              <li><a href="#library-protocol">Library protocol</a></li>
+              <li><a href="#additional-libraries">Additional libraries</a></li>
               <li><a href="#discussion">Discussion</a></li>
             </ol>
           </li>
-          <li><a href="#example-of-usage">Example of usage</a></li>
           <li>
             <a href="#interface">Interface</a>
             <ol type="i">
               <li><a href="#all-libraries">All libraries</a></li>
-              <li>
-                <a href="#determinized-interface"><code>determinized</code>
-                  libraries</a>
-              </li>
+              <li><a href="#determinized-libraries">determinized libraries</a></li>
+              <li><a href="#example-of-usage">Example of usage</a></li>
             </ol>
+          </li>
           <li>
             <a href="#example-library-names">Example library names</a>
+            <ol type="i">
+              <li><a href="#randomized-libraries">randomized libraries</a></li>
+              <li><a href="#determinized-libraries-2">determinized libraries</a></li>
+            </ol>
           </li>
         </ol>
       </li>
+      <li>
+        <a href="#compatibility">Usage and compatibility</a>
+        <ol type="a">
+          <li><a href="#a-higher-level-interface">A higher-level interface</a></li>
+          <li><a href="#srfi-27">SRFI 27</a></li>
+        </ol>
+      </li>
       <li><a href="#implementation">Implementation</a></li>
-      <li><a href="#compatibility">Usage and compatibility</a></li>
       <li><a href="#acknowledgements">Acknowledgements</a></li>
       <li><a href="#references">References</a></li>
       <li><a href="#copyright">Copyright</a></li>
     </ol>
-
-
-
-    <h2 id="issues">Issues</h2>
-
-    <p>None at present.</p>
 
     <h2 id="rationale">Rationale</h2>
 
@@ -150,7 +155,7 @@
     <a href="#terminology">Terminology</a> section for a precise — or
     at least longer — definition.</p>
 
-    <h3>Random-port states</h3>
+    <h3 id="random-port-states">Random-port states</h3>
 
     <p>Everyone agrees that it is sometimes useful to generate
       the same random sequence several times, e.g. on each run of
@@ -196,7 +201,7 @@
       cyclic port, which produces a constant sequence repeatedly, is
       useful as a random-port initializer in this scenario.</p>
 
-    <h3>Why ports?</h3>
+    <h3 id="why-ports">Why ports?</h3>
 
     <p>Input ports have been in the Scheme Reports since the early days
       (the <a href="#r2rs">RRRS</a>).  Thus they fit easily into
@@ -379,7 +384,7 @@
       </div>
 
       <div id="determinized-interface">
-        <h4><code>determinized</code> libraries</h4>
+        <h4 id="determinized-libraries"><code>determinized</code> libraries</h4>
 
         <p>The following procedures are exported by all libraries with
           the <code>(srfi 271 determinized)</code> prefix.</p>
@@ -604,7 +609,7 @@
         <a href="https://prng.di.unimi.it">Sebastiano Vigna’s PRNG
         page</a> and Wikipedia.</p>
 
-      <h4><code>randomized</code> libraries</h4>
+      <h4 id="randomized-libraries"><code>randomized</code> libraries</h4>
 
       <dl>
         <dt>
@@ -626,7 +631,7 @@
         </dd>
       </dl>
 
-      <h4><code>determinized</code> libraries</h4>
+      <h4 id="determinized-libraries-2"><code>determinized</code> libraries</h4>
 
       <dl>
         <dt><code>(srfi 271 determinized chacha8)</code></dt>
@@ -687,7 +692,7 @@
 
     <p><em>This section is informational.</em></p>
 
-    <h3>A higher-level interface</h3>
+    <h3 id="a-higher-level-interface">A higher-level interface</h3>
 
     <p>Since this SRFI does not provide
       procedures for getting generally useful data types (integers
@@ -715,7 +720,7 @@
       27 and 271 interfaces.  A discussion of SRFI 27 / 271 compatibility
       issues follows.</p>
 
-    <h3>SRFI 27</h3>
+    <h3 id="srfi-27">SRFI 27</h3>
 
     <p>SRFI 27’s random sources are similar to random ports, but
       they support a few operations that cannot be directly implemented
@@ -811,7 +816,7 @@
       <a href="https://groups.google.com/g/scheme-reports-wg2/c/nMdFKe_dBbE/m/Xddyok-uBAAJ">Communication
       to the R7RS WG2 mailing list</a>, March 2026.</p>
 
-    <p id="srfi-27">Sebastian Egner. <cite>SRFI 27: Sources of
+    <p id="srfi-27-ref">Sebastian Egner. <cite>SRFI 27: Sources of
       random bits</cite>.
       <a href="https://srfi.schemers.org/srfi-27/">
         https://srfi.schemers.org/srfi-27/</a>, 2002.</p>
