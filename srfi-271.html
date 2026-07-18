@@ -189,6 +189,13 @@
       randomized port, it is easy to create determinized ports with
       random initial states.</p>
 
+    <p>In testing it is sometimes desirable to create a random port
+      that produces the same sequence on each run of a suite, without
+      initializing the port to a previously-saved state.
+      A <a href="https://srfi.schemers.org/srfi-277/">SRFI 277</a>
+      cyclic port, which produces a constant sequence repeatedly, is
+      useful as a random-port initializer in this scenario.</p>
+
     <h3>Why ports?</h3>
 
     <p>Input ports have been in the Scheme Reports since the early days
@@ -832,6 +839,10 @@
       communication, 2025.
       <a href="https://codeberg.org/scheme/r7rs/issues/71#issuecomment-11352490">Available on the R7RS issue tracker.</a></p>
 
+    <p id="srfi-277">Wolfgang Corcoran-Mathe. <cite>SRFI 277: Cyclic
+      ports</cite>.
+      <a href="https://srfi.schemers.org/srfi-277/">
+        https://srfi.schemers.org/srfi-277/</a>, 2026.</p>
 
     <h2 id="copyright">Copyright</h2>
 

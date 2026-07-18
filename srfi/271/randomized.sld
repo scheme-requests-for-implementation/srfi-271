@@ -6,5 +6,5 @@
           (scheme file))
   (begin
     (define (make-random-port . junk)
-      (open-input-file "/dev/urandom"))
+      (open-binary-input-file "/dev/urandom"))
     ))
