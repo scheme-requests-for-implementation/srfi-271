@@ -11,7 +11,7 @@ keywords: [[https://srfi.schemers.org/?keywords=randomness][Randomness]]
 
 This repository hosts [[https://srfi.schemers.org/srfi-271/][SRFI 271]]: Random port libraries, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
 
-This SRFI is in /draft/ status.
+This SRFI is in /final/ status.
 See also [[/srfi-27/][SRFI 27: Sources of Random Bits]], [[/srfi-194/][SRFI 194: Random data generators]], and [[/srfi-277/][SRFI 277: Cyclic ports]].
 The full documentation for this SRFI can be found in the [[https://srfi.schemers.org/srfi-271/srfi-271.html][SRFI Document]].
 
