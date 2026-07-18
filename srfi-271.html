@@ -118,7 +118,7 @@
       library procedures over user-defined random sources, thus adding
       avoidable complexity to the specification.</p>
 
-    <p>In this SRFI I take a different tack and try to describe a
+    <p>In this SRFI, I take a different tack, and try to describe a
       framework for random-number generation that adds as little as
       necessary to the language. This SRFI:</p>
 
@@ -189,9 +189,9 @@
       randomized port, it is easy to create determinized ports with
       random initial states.</p>
 
-    <p>In testing it is sometimes desirable to create a random port
+    <p>In testing, it is sometimes desirable to create a random port
       that produces the same sequence on each run of a suite, without
-      initializing the port to a previously-saved state.
+      initializing the port to a previously saved state.
       A <a href="https://srfi.schemers.org/srfi-277/">SRFI 277</a>
       cyclic port, which produces a constant sequence repeatedly, is
       useful as a random-port initializer in this scenario.</p>
@@ -740,7 +740,7 @@
     <p>SRFI 27’s type-disjointness requirement could be satisfied by
       wrapping a random port in a record type.  State mutation could
       then be implemented by replacing the port within the
-      random-source wrapper with a newly-created port (since this SRFI
+      random-source wrapper with a newly created port (since this SRFI
       only allows states to be set during port creation).
     </p>
 
