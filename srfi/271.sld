@@ -4,4 +4,4 @@
   (export make-random-port)
   (import (scheme base)
           (scheme file)
-          (srfi 271 entropic)))
+          (srfi 271 randomized)))
